@@ -461,10 +461,12 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (ES Module version) -->
+<!-- Firebase SDK (ES Module version) -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const BACKEND_URL = "https://tha-tournaments.onrender.com";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD48ch2_ZWn2XPuV-G6wU4Wm3BI1YVGASw",
@@ -496,13 +498,11 @@
             }
 
             modalContentEl.innerHTML = `<p class="text-xl font-semibold text-gray-700">${messageHtml}</p>`;
-            
-            // Reset button states
+
             modalOkBtn.classList.add('hidden');
             modalConfirmBtn.classList.add('hidden');
             modalCancelBtn.classList.add('hidden');
 
-            // Configure buttons based on modal type
             if (type === 'confirm_cancel') {
                 modalConfirmBtn.classList.remove('hidden');
                 modalCancelBtn.classList.remove('hidden');
@@ -512,7 +512,7 @@
                 modalOkBtn.classList.remove('hidden');
                 modalOkBtn.onclick = () => { closeModal(); resolve(true); };
             }
-            
+
             customModalEl.classList.add('flex');
         });
     };
@@ -522,12 +522,10 @@
         if (customModalEl) customModalEl.classList.remove('flex');
     };
 
-    // --- Fetch User Registrations (Fixed) ---
     window.fetchUserRegistrations = async () => {
         const registrationsTableBody = document.getElementById('registrationsTableBody');
         if (!registrationsTableBody) return;
 
-        // Clear existing content
         registrationsTableBody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-gray-600">Loading your registrations...</td></tr>`;
 
         if (!currentUser) {
@@ -543,20 +541,20 @@
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/get_registrations`)
+            const response = await fetch(`${BACKEND_URL}/api/get_registrations?userId=${currentUser.uid}`);
             const result = await response.json();
 
             if (result.success && result.registrations.length > 0) {
                 registrationsTableBody.innerHTML = '';
-                
+
                 result.registrations.forEach(reg => {
                     const teammatesHtml = reg.teammates && reg.teammates.length > 0
                         ? reg.teammates.map(t => `${t.ign || 'N/A'} (${t.ffid || 'N/A'})`).join('<br>')
                         : 'N/A';
-                    
+
                     let displayStatus = (reg.status || 'unknown').toUpperCase();
                     let statusClass = 'text-gray-400';
-                    
+
                     if (reg.isCompleted) {
                         displayStatus = 'COMPLETED';
                         statusClass = 'status-completed';
@@ -582,9 +580,7 @@
                                 <button onclick="viewMatchParticipants('${reg.matchId}')" class="modern-btn !bg-blue-600 hover:!bg-blue-600 text-xs mb-1 py-2 px-4">
                                     <i class="fas fa-users mr-1"></i> Participants
                                 </button>
-                                <button onclick="cancelRegistration('${reg.id}', '${reg.userId}')" 
-                                    class="modern-btn !bg-orange-600 hover:!bg-orange-600 text-xs mr-2 py-2 px-4"
-                                    ${reg.status === 'canceled' || reg.isCompleted ? 'disabled' : ''}>
+                                <button onclick="cancelRegistration('${reg.id}', '${reg.userId}')" class="modern-btn !bg-orange-600 hover:!bg-orange-600 text-xs mr-2 py-2 px-4" ${reg.status === 'canceled' || reg.isCompleted ? 'disabled' : ''}>
                                     <i class="fas fa-times-circle mr-1"></i> Cancel
                                 </button>
                                 <button onclick="deleteRegistration('${reg.id}', '${reg.userId}')" class="modern-btn !bg-red-600 hover:!bg-red-600 text-xs py-2 px-4">
@@ -617,18 +613,17 @@
         }
     };
 
-    // --- View Participants ---
     window.viewMatchParticipants = async (matchId) => {
         if (!matchId) return;
-        
+
         await openModal('<p class="text-center">Loading participants...</p>');
-        
+
         try {
-            const response = await fetch(`${BACKEND_URL}/api/get_match_participants`)
+            const response = await fetch(`${BACKEND_URL}/api/get_match_participants?matchId=${matchId}`);
             const result = await response.json();
-            
+
             let content = `<h3 class="text-xl font-bold mb-4">Match ID: ${matchId}</h3>`;
-            
+
             if (result.success && result.participants.length > 0) {
                 content += `<div class="max-h-96 overflow-y-auto"><ul class="space-y-3">`;
                 result.participants.forEach(p => {
@@ -642,7 +637,7 @@
             } else {
                 content += `<p>No participants found</p>`;
             }
-            
+
             closeModal();
             await openModal(content);
         } catch (error) {
@@ -652,13 +647,12 @@
         }
     };
 
-    // --- Cancel Registration ---
     window.cancelRegistration = async (registrationId, userId) => {
         const confirmed = await openModal('Cancel this registration? This cannot be undone.', 'confirm_cancel');
         if (!confirmed) return;
 
         try {
-            fetch(`${window.location.origin}/api/update_registration_status`, {
+            const response = await fetch(`${BACKEND_URL}/api/update_registration_status`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -667,7 +661,7 @@
                     status: 'canceled' 
                 }),
             });
-            
+
             const result = await response.json();
             await openModal(result.message || (result.success ? "Registration canceled" : "Operation failed"));
             if (result.success) fetchUserRegistrations();
@@ -677,18 +671,17 @@
         }
     };
 
-    // --- Delete Registration ---
     window.deleteRegistration = async (registrationId, userId) => {
         const confirmed = await openModal('Permanently delete this registration? This cannot be undone.', 'confirm_cancel');
         if (!confirmed) return;
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/delete_registration`), {
+            const response = await fetch(`${BACKEND_URL}/api/delete_registration`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ registrationId, userId }),
             });
-            
+
             const result = await response.json();
             await openModal(result.message || (result.success ? "Registration deleted" : "Delete failed"));
             if (result.success) fetchUserRegistrations();
@@ -698,26 +691,23 @@
         }
     };
 
-    // --- Auth State Handler ---
     onAuthStateChanged(auth, (user) => {
         const loadingScreen = document.getElementById('loadingScreen');
         const mainContent = document.getElementById('mainContent');
         const loggedInEmailSpan = document.getElementById('loggedInEmail');
         const loggedInUserIdSpan = document.getElementById('loggedInUserId');
         const logoutButton = document.getElementById('logoutButton');
-        
-        // Always show content after auth check
+
         if (loadingScreen) loadingScreen.classList.add('hidden');
         if (mainContent) mainContent.classList.remove('hidden');
-        
+
         currentUser = user;
-        
+
         if (user) {
             if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email;
             if (loggedInUserIdSpan) loggedInUserIdSpan.textContent = user.uid;
             if (logoutButton) logoutButton.classList.remove('hidden');
-            
-            // Set logout handler
+
             logoutButton.onclick = async () => {
                 try {
                     await signOut(auth);
@@ -727,15 +717,13 @@
                     await openModal("Logout failed");
                 }
             };
-            
-            // Load registrations
+
             fetchUserRegistrations();
         } else {
             if (loggedInEmailSpan) loggedInEmailSpan.textContent = 'Guest';
             if (loggedInUserIdSpan) loggedInUserIdSpan.textContent = 'N/A';
             if (logoutButton) logoutButton.classList.add('hidden');
-            
-            // Show login prompt in table
+
             const registrationsTableBody = document.getElementById('registrationsTableBody');
             if (registrationsTableBody) {
                 registrationsTableBody.innerHTML = `
@@ -749,5 +737,6 @@
         }
     });
 </script>
+
 </body>
 </html>
