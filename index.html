@@ -785,7 +785,7 @@
         loadingMatchesMessage.classList.remove('hidden');
         noMatchesMessage.classList.add('hidden');
 
-        const response = await fetch('/api/match_slots');
+        const response = await fetch('https://tha-tournaments.onrender.com/api/match_slots');
         const result = await response.json();
 
         loadingMatchesMessage.classList.add('hidden');
@@ -1027,7 +1027,7 @@
         document.getElementById('registerButton').disabled = true;
         document.getElementById('registerButton').textContent = 'Registering...';
 
-        const response = await fetch('/api/register_tournament', {
+        const response = await fetch('https://tha-tournaments.onrender.com/api/register_tournament', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1060,7 +1060,7 @@
     contactContentDiv.innerHTML = '<p class="text-center text-gray-600">Loading contact information...</p>';
 
     try {
-        const response = await fetch('/api/configs/website_content');
+        const response = await fetch('https://tha-tournaments.onrender.com/api/configs/website_content');
 
         if (!response.ok) {
             const text = await response.text();
@@ -1100,7 +1100,7 @@
         noScheduleMessage.classList.add('hidden');
 
         try {
-            const response = await fetch('/api/schedule_items');
+            const response = await fetch('https://tha-tournaments.onrender.com/api/schedule_items');
             const result = await response.json();
 
             loadingScheduleMessage.classList.add('hidden');
@@ -1140,7 +1140,7 @@
         noPrizeMessage.classList.add('hidden');
 
         try {
-            const response = await fetch('/api/prize_items');
+            const response = await fetch('https://tha-tournaments.onrender.com/api/prize_items');
             const result = await response.json();
 
             loadingPrizeMessage.classList.add('hidden');
