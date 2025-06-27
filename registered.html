@@ -543,7 +543,7 @@
         }
 
         try {
-            const response = await fetch(`${window.location.origin}/api/get_registrations?userId=${currentUser.uid}`)
+            const response = await fetch(`${BACKEND_URL}/api/get_registrations`)
             const result = await response.json();
 
             if (result.success && result.registrations.length > 0) {
@@ -624,7 +624,7 @@
         await openModal('<p class="text-center">Loading participants...</p>');
         
         try {
-            const response = await fetch(`${window.location.origin}/api/get_match_participants?matchId=${matchId}`)
+            const response = await fetch(`${BACKEND_URL}/api/get_match_participants`)
             const result = await response.json();
             
             let content = `<h3 class="text-xl font-bold mb-4">Match ID: ${matchId}</h3>`;
@@ -683,7 +683,7 @@
         if (!confirmed) return;
 
         try {
-            const response = await fetch(`${window.location.origin}/api/delete_registration?userId=${userId}&matchId=${matchId}`, {
+            const response = await fetch(`${BACKEND_URL}/api/delete_registration`), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ registrationId, userId }),
