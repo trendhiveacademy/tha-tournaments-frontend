@@ -712,7 +712,7 @@
             logoutButton.onclick = async () => {
                 try {
                     await signOut(auth);
-                    window.location.href = '/';
+                    window.location.href = '/tha-tournaments-frontend/';
                 } catch (error) {
                     console.error("Logout error:", error);
                     await openModal("Logout failed");
