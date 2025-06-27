@@ -388,7 +388,7 @@
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto items-center sm:items-stretch">
     
 
-    <a href="/registered.html" id="myRegistrationsButton" class="hidden modern-btn !bg-green-600 hover:!bg-green-600 w-full sm:w-auto text-center">
+    <a href="/tha-tournaments-frontend/registered.html" id="myRegistrationsButton" class="hidden modern-btn !bg-green-600 hover:!bg-green-600 w-full sm:w-auto text-center">
     <i class="fas fa-clipboard-list mr-2"></i>My Registrations
 </a>
 
@@ -1045,7 +1045,7 @@
             document.getElementById('registrationForm').reset();
             updateTeammateInputs(); // Clear teammate fields
             // Optionally redirect to registered.html
-            window.location.href = '/registered.html'; 
+            window.location.href = '/tha-tournaments-frontend/registered.html'; 
         } else {
             await openModal(result.message || 'Registration failed. Please try again.');
         }
