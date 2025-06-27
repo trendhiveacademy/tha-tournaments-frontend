@@ -391,8 +391,9 @@
     </button>
 
     <a href="/registered.html" id="myRegistrationsButton" class="hidden modern-btn !bg-green-600 hover:!bg-green-600 w-full sm:w-auto text-center">
-        <i class="fas fa-clipboard-list mr-2"></i>My Registrations
-    </a>
+    <i class="fas fa-clipboard-list mr-2"></i>My Registrations
+</a>
+
 
     <button id="logoutButton" class="hidden modern-btn !bg-red-500 hover:!bg-red-500 w-full sm:w-auto">
         <i class="fas fa-sign-out-alt mr-2"></i>Logout
@@ -1194,7 +1195,15 @@ onAuthStateChanged(auth, (user) => {
     if (mainContent) mainContent.classList.remove('hidden');
     
     currentUser = user;
-    
+    if (user) {
+        // ✅ Show logout and registrations buttons
+        if (logoutButton) logoutButton.classList.remove('hidden');
+        if (myRegistrationsButton) myRegistrationsButton.classList.remove('hidden');
+    } else {
+        // ❌ Hide if not logged in
+        if (logoutButton) logoutButton.classList.add('hidden');
+        if (myRegistrationsButton) myRegistrationsButton.classList.add('hidden');
+    }
     if (user) {
         if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email;
         if (logoutButton) logoutButton.classList.remove('hidden');
