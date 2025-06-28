@@ -1384,7 +1384,7 @@
             const roomCode = document.getElementById(`roomCode_${registrationId}`).value;
             const roomPassword = document.getElementById(`roomPassword_${registrationId}`).value;
 
-            const result = await makeAdminApiRequest('/api/admin/update_match_details', 'POST', {
+            const result = await makeAdminApiRequest('/api/admin/update_match_room_details', 'POST', {
                 registrationId: registrationId,
                 roomCode: roomCode,
                 roomPassword: roomPassword
