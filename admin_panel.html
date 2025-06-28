@@ -1381,49 +1381,43 @@
         }
 
         window.updateMatchDetails = async (registrationId) => { 
-            const roomCode = document.getElementById(`roomCode_${registrationId}`).value;
-            const roomPassword = document.getElementById(`roomPassword_${registrationId}`).value;
+    const roomCode = document.getElementById(`roomCode_${registrationId}`).value;
+    const roomPassword = document.getElementById(`roomPassword_${registrationId}`).value;
 
-            const result = await makeAdminApiRequest('/api/admin/update_match_room_details', 'POST', {
-                registrationId: registrationId,
-                roomCode: roomCode,
-                roomPassword: roomPassword
-            });
-            await openModal(result.message);
-            if (result.success) {
-                fetchAllRegistrationsForAdmin(); 
-            }
-        }
+    // CORRECTED ENDPOINT
+    const result = await makeAdminApiRequest('/api/admin/update_single_registration_room_details', 'POST', {
+        registrationId: registrationId,
+        roomCode: roomCode,
+        roomPassword: roomPassword
+    });
+    await openModal(result.message);
+    if (result.success) {
+        fetchAllRegistrationsForAdmin(); 
+    }
+}
 
         window.updateBatchMatchDetails = async (event) => {
-            event.preventDefault();
-            const matchToUpdateSelect = document.getElementById('matchToUpdate');
-            const batchRoomCodeInput = document.getElementById('batchRoomCode');
-            const batchRoomPasswordInput = document.getElementById('batchRoomPassword');
+    event.preventDefault();
+    const matchToUpdateSelect = document.getElementById('matchToUpdate');
+    const batchRoomCodeInput = document.getElementById('batchRoomCode');
+    const batchRoomPasswordInput = document.getElementById('batchRoomPassword');
 
-            const matchId = matchToUpdateSelect.value;
-            const roomCode = batchRoomCodeInput.value;
-            const roomPassword = batchRoomPasswordInput.value;
+    const matchId = matchToUpdateSelect.value;
+    const roomCode = batchRoomCodeInput.value;
+    const roomPassword = batchRoomPasswordInput.value;
 
-            if (!matchId) {
-                await openModal('Please select a match from the dropdown.');
-                return;
-            }
-
-            const confirmed = await openModal(`Are you sure you want to update Room Code and Password for ALL registrations of match "${matchId}"?`, 'confirm_cancel');
-            if (!confirmed) return;
-
-            const result = await makeAdminApiRequest('/api/admin/update_match_room_details', 'POST', {
-                matchId: matchId,
-                roomCode: roomCode,
-                roomPassword: roomPassword
-            });
-            await openModal(result.message);
-            if (result.success) {
-                document.getElementById('updateMatchRoomDetailsForm').reset();
-                fetchAllRegistrationsForAdmin(); 
-            }
-        }
+    // ADDED MISSING ADMIN UID
+    const result = await makeAdminApiRequest('/api/admin/update_match_room_details', 'POST', {
+        matchId: matchId,
+        roomCode: roomCode,
+        roomPassword: roomPassword
+    });
+    await openModal(result.message);
+    if (result.success) {
+        document.getElementById('updateMatchRoomDetailsForm').reset();
+        fetchAllRegistrationsForAdmin(); 
+    }
+}
 
         window.adminCancelRegistration = async (registrationId, userId, currentStatus, isCompleted) => { 
             if (currentStatus === 'canceled' || isCompleted) { 
