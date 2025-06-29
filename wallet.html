@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Money - THA Wallet</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #F0F4F8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            margin-top: 10px;
+            width: 200px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Deposit Money</h2>
+    <input type="number" id="amount" placeholder="Enter amount ₹" />
+    <br>
+    <button onclick="startPayment()">Add to Wallet</button>
+</div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+};
+firebase.initializeApp(firebaseConfig);
+
+let userId = null;
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        userId = user.uid;
+    } else {
+        alert("Please login first.");
+        window.location.href = "/";
+    }
+});
+
+async function startPayment() {
+    const amount = parseInt(document.getElementById("amount").value);
+    if (!amount || amount <= 0) return alert("Enter a valid amount");
+
+    const res = await fetch("https://tha-tournaments.onrender.com/api/create_wallet_order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, amount: amount })
+    });
+
+    const data = await res.json();
+
+    const options = {
+        key: data.key_id,
+        order_id: data.order_id,
+        amount: amount * 100,
+        currency: "INR",
+        name: "THA Wallet",
+        description: "Add to your wallet",
+        handler: function () {
+            alert("Payment Successful!");
+            window.location.href = "/registered.html";
+        },
+        theme: {
+            color: "#3B82F6"
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+}
+</script>
+</body>
+</html>
