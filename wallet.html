@@ -86,6 +86,26 @@
             <p class="mt-4 text-xl font-semibold text-gray-700">Loading Wallet...</p>
         </div>
     </div>
+    <!-- Payment Error Screen -->
+<div id="errorScreen" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full">
+        <div class="text-center">
+            <i class="fas fa-times-circle text-red-500 text-5xl mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Payment Failed</h2>
+            <p id="errorMessage" class="text-gray-600 mb-6">There was an issue processing your payment.</p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="window.location.href='/wallet.html'" 
+                        class="modern-btn !bg-gray-700 hover:!bg-gray-800">
+                    <i class="fas fa-wallet mr-2"></i>Back to Wallet
+                </button>
+                <button onclick="document.getElementById('errorScreen').classList.add('hidden'); showDepositSection()" 
+                        class="modern-btn !bg-blue-600 hover:!bg-blue-700">
+                    <i class="fas fa-redo mr-2"></i>Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div id="mainContent" class="hidden card-base max-w-4xl w-full flex flex-col items-center">
         <header class="text-center mb-12 w-full p-8 card-base shadow-lg">
