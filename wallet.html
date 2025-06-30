@@ -1,101 +1,402 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Add Money - THA Wallet</title>
+    <base href="/" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet - THA Tournaments</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <style>
+        /* Reuse existing styles from index.html */
+        @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
         body {
-            font-family: sans-serif;
-            background: #F0F4F8;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            color: #334155;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
+            padding-top: 2.5rem;
+            padding-bottom: 2.5rem;
         }
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            text-align: center;
+        
+        #background-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100;
+            object-fit: cover;
+            filter: brightness(0.8);
         }
-        input {
-            padding: 10px;
-            margin-top: 10px;
-            width: 200px;
-            font-size: 16px;
+        
+        .card-base {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 1rem;
+            padding: 3rem;
+            transition: all 0.3s ease-in-out;
+            backdrop-filter: blur(8px);
         }
-        button {
-            padding: 10px 20px;
-            background: #3B82F6;
-            color: white;
+        
+        .modern-btn {
+            background: linear-gradient(45deg, #60A5FA, #3B82F6);
+            color: #FFF;
+            font-weight: 600;
+            padding: 0.9rem 2.2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
             border: none;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 16px;
             cursor: pointer;
+        }
+        
+        .fee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .fee-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
     </style>
 </head>
-<body>
-<div class="card">
-    <h2>Deposit Money</h2>
-    <input type="number" id="amount" placeholder="Enter amount ₹" />
-    <br>
-    <button onclick="startPayment()">Add to Wallet</button>
-</div>
+<body class="py-8 px-4">
+    <video autoplay muted loop id="background-video">
+        <source src="tournament-bg.mp4" type="video/mp4">
+    </video>
 
-<script>
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-};
-firebase.initializeApp(firebaseConfig);
+    <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-100 z-50">
+        <div class="flex flex-col items-center">
+            <div class="loading-animation"></div>
+            <p class="mt-4 text-xl font-semibold text-gray-700">Loading Wallet...</p>
+        </div>
+    </div>
 
-let userId = null;
-firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-        userId = user.uid;
-    } else {
-        alert("Please login first.");
-        window.location.href = "/";
-    }
-});
+    <div id="mainContent" class="hidden card-base max-w-4xl w-full flex flex-col items-center">
+        <header class="text-center mb-12 w-full p-8 card-base shadow-lg">
+            <h1 class="text-5xl lg:text-6xl font-extrabold mb-4">
+                <i class="fas fa-wallet text-indigo-600 mr-3"></i>Tournament Wallet
+            </h1>
+            <p class="text-xl lg:text-2xl text-cyan-300 font-semibold mb-8">Deposit funds for tournament entries</p>
+            
+            <div class="border-b-4 border-gray-200 mt-8 mb-6"></div>
+            
+            <div class="flex justify-between items-center w-full">
+                <div class="text-left">
+                    <p class="text-lg">Balance: <span id="walletBalance" class="font-bold text-green-600">₹0.00</span></p>
+                </div>
+                <a href="/" class="modern-btn !bg-purple-600 hover:!bg-purple-600">
+                    <i class="fas fa-home mr-2"></i>Back to Home
+                </a>
+            </div>
+        </header>
 
-async function startPayment() {
-    const amount = parseInt(document.getElementById("amount").value);
-    if (!amount || amount <= 0) return alert("Enter a valid amount");
+        <section class="w-full mb-8 card-base section-light-blue-tint">
+            <h2 class="text-3xl font-bold mb-6 text-center">
+                <i class="fas fa-money-bill-wave mr-3 text-blue-500"></i>Deposit Funds
+            </h2>
+            
+            <div class="mb-6">
+                <label for="depositAmount" class="block text-gray-700 text-lg font-bold mb-3">
+                    Enter Amount (₹10 minimum):
+                </label>
+                <input type="number" id="depositAmount" min="10" step="1" 
+                       class="w-full py-3 px-4 text-lg border rounded-lg shadow-sm" 
+                       placeholder="e.g., 100">
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-3">Service Charges:</h3>
+                <div class="fee-grid">
+                    <div class="fee-card">
+                        <div class="font-bold">₹10-30</div>
+                        <div class="text-red-500">+ ₹3 charge</div>
+                    </div>
+                    <div class="fee-card">
+                        <div class="font-bold">₹31-60</div>
+                        <div class="text-red-500">+ ₹2 charge</div>
+                    </div>
+                    <div class="fee-card">
+                        <div class="font-bold">₹61-100</div>
+                        <div class="text-red-500">+ ₹1 charge</div>
+                    </div>
+                    <div class="fee-card">
+                        <div class="font-bold">₹100+</div>
+                        <div class="text-green-500">No charge</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mb-6">
+                <p class="text-lg">Total to Pay: <span id="totalAmount" class="font-bold text-indigo-600">₹0.00</span></p>
+            </div>
+            
+            <button id="depositButton" class="modern-btn !bg-green-600 hover:!bg-green-600 w-full py-4 text-xl">
+                <i class="fas fa-credit-card mr-2"></i>Proceed to Payment
+            </button>
+        </section>
 
-    const res = await fetch("https://tha-tournaments.onrender.com/api/create_wallet_order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, amount: amount })
-    });
+        <section class="w-full card-base section-light-green-tint">
+            <h2 class="text-3xl font-bold mb-6 text-center">
+                <i class="fas fa-history mr-3 text-green-500"></i>Transaction History
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full rounded-lg shadow-sm">
+                    <thead>
+                        <tr class="uppercase text-sm leading-normal">
+                            <th class="py-4 px-6 text-left">Date</th>
+                            <th class="py-4 px-6 text-left">Description</th>
+                            <th class="py-4 px-6 text-left">Amount</th>
+                            <th class="py-4 px-6 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <tr>
+                            <td colspan="4" class="py-6 text-center text-gray-600">No transactions yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
 
-    const data = await res.json();
+    <!-- Custom Modal -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full">
+            <div id="modalContent" class="mb-6">
+                <h3 class="text-2xl font-bold text-center mb-4">Processing Payment</h3>
+                <p class="text-center">Please wait while we process your transaction...</p>
+            </div>
+            <div class="flex justify-center">
+                <div class="loading-animation"></div>
+            </div>
+        </div>
+    </div>
 
-    const options = {
-        key: data.key_id,
-        order_id: data.order_id,
-        amount: amount * 100,
-        currency: "INR",
-        name: "THA Wallet",
-        description: "Add to your wallet",
-        handler: function () {
-            alert("Payment Successful!");
-            window.location.href = "/registered.html";
-        },
-        theme: {
-            color: "#3B82F6"
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyD48ch2_ZWn2XPuV-G6wU4Wm3BI1YVGASw",
+            authDomain: "tournaments-a652c.firebaseapp.com",
+            projectId: "tournaments-a652c",
+            storageBucket: "tournaments-a652c.appspot.com",
+            messagingSenderId: "989795533335",
+            appId: "1:989795533335:web:b45cb8f8c7853b7f1e5252",
+            measurementId: "G-M3XGTFTQ4G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        let currentUser = null;
+        const API_BASE_URL = "https://tha-tournaments.onrender.com";
+        
+        // DOM Elements
+        const depositAmount = document.getElementById('depositAmount');
+        const totalAmount = document.getElementById('totalAmount');
+        const depositButton = document.getElementById('depositButton');
+        const walletBalance = document.getElementById('walletBalance');
+        const transactionsTableBody = document.getElementById('transactionsTableBody');
+        const modal = document.getElementById('customModal');
+
+        // Calculate charges based on amount
+        function calculateCharges(amount) {
+            if (amount <= 30) return 3;
+            if (amount <= 60) return 2;
+            if (amount <= 100) return 1;
+            return 0;
         }
-    };
 
-    const rzp = new Razorpay(options);
-    rzp.open();
-}
-</script>
+        // Update total amount display
+        function updateTotalAmount() {
+            const amount = parseFloat(depositAmount.value) || 0;
+            const charges = calculateCharges(amount);
+            const total = amount + charges;
+            totalAmount.textContent = `₹${total.toFixed(2)}`;
+            
+            // Enable/disable button based on valid amount
+            depositButton.disabled = amount < 10;
+        }
+
+        // Fetch wallet balance from backend
+        async function fetchWalletBalance() {
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/wallet?userId=${currentUser.uid}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    walletBalance.textContent = `₹${result.balance.toFixed(2)}`;
+                }
+            } catch (error) {
+                console.error("Error fetching wallet balance:", error);
+            }
+        }
+
+        // Fetch transaction history
+        async function fetchTransactions() {
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/transactions?userId=${currentUser.uid}`);
+                const result = await response.json();
+                
+                if (result.success && result.transactions.length > 0) {
+                    transactionsTableBody.innerHTML = '';
+                    result.transactions.forEach(transaction => {
+                        const date = new Date(transaction.timestamp).toLocaleString();
+                        const row = `
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-6">${date}</td>
+                                <td class="py-3 px-6">${transaction.description}</td>
+                                <td class="py-3 px-6 ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${transaction.amount > 0 ? '+' : ''}₹${Math.abs(transaction.amount).toFixed(2)}
+                                </td>
+                                <td class="py-3 px-6">
+                                    <span class="px-2 py-1 rounded-full ${transaction.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                        ${transaction.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                        transactionsTableBody.insertAdjacentHTML('beforeend', row);
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
+            }
+        }
+
+        // Initialize Razorpay payment
+        async function initPayment() {
+            const amount = parseFloat(depositAmount.value);
+            if (!amount || amount < 10) return;
+            
+            // Show loading modal
+            modal.classList.remove('hidden');
+            
+            try {
+                // Create order on backend
+                const response = await fetch(`${API_BASE_URL}/api/create_razorpay_order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: amount * 100, // Convert to paise
+                        userId: currentUser.uid
+                    })
+                });
+                
+                const orderData = await response.json();
+                
+                if (!orderData.success) {
+                    throw new Error(orderData.message || 'Failed to create payment order');
+                }
+                
+                // Initiate Razorpay payment
+                const options = {
+                    key: orderData.key_id,
+                    amount: orderData.amount,
+                    currency: "INR",
+                    name: "THA Tournaments",
+                    description: "Wallet Deposit",
+                    order_id: orderData.order_id,
+                    handler: async function(response) {
+                        // Verify payment on backend
+                        const verificationResponse = await fetch(`${API_BASE_URL}/api/verify_payment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                                amount: amount,
+                                userId: currentUser.uid
+                            })
+                        });
+                        
+                        const verificationResult = await verificationResponse.json();
+                        
+                        if (verificationResult.success) {
+                            alert('Payment successful! Your wallet has been credited.');
+                            fetchWalletBalance();
+                            fetchTransactions();
+                        } else {
+                            alert('Payment verification failed. Please contact support.');
+                        }
+                        
+                        modal.classList.add('hidden');
+                    },
+                    prefill: {
+                        name: currentUser.displayName || "",
+                        email: currentUser.email || ""
+                    },
+                    theme: {
+                        color: "#3B82F6"
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+            } catch (error) {
+                console.error("Payment error:", error);
+                alert(`Payment failed: ${error.message}`);
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Initialize page
+        function initWalletPage() {
+            // Event listeners
+            depositAmount.addEventListener('input', updateTotalAmount);
+            depositButton.addEventListener('click', initPayment);
+            
+            // Initial calculations
+            updateTotalAmount();
+            
+            // Fetch data
+            fetchWalletBalance();
+            fetchTransactions();
+            
+            // Show main content
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (loadingScreen) loadingScreen.classList.add('hidden');
+            if (mainContent) mainContent.classList.remove('hidden');
+            
+            currentUser = user;
+            
+            if (user) {
+                initWalletPage();
+            } else {
+                // Redirect to home if not logged in
+                window.location.href = '/';
+            }
+        });
+    </script>
 </body>
 </html>
