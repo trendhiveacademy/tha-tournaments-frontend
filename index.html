@@ -402,6 +402,11 @@
     </button>
 </div>
             </div>
+
+    <!-- Add this in the header section after other buttons -->
+<button id="walletButton" class="modern-btn !bg-indigo-600 hover:!bg-indigo-600 w-full sm:w-auto">
+    <i class="fas fa-wallet mr-2"></i>Wallet
+</button>
         </header>
 
         <section class="w-full mb-12 card-base section-light-blue-tint animate-fade-in-up">
@@ -1254,6 +1259,11 @@ onAuthStateChanged(auth, (user) => {
         
         // Clear timers when page is unloaded
         window.addEventListener('beforeunload', clearAllTimers);
+
+        // Add this in the script section
+document.getElementById('walletButton')?.addEventListener('click', () => {
+    window.location.href = '/wallet.html';
+    
     });
 </script>
 </body>
