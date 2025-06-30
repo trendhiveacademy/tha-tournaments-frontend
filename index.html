@@ -13,18 +13,17 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            /* Changed to transparent background */
             background: transparent;
-            color: #334155; /* Dark gray for main text */
+            color: #334155;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding-top: 2.5rem;
             padding-bottom: 2.5rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         }
 
-        /* Video Background Styling - Increased brightness */
         #background-video {
             position: fixed;
             right: 0;
@@ -34,24 +33,18 @@
             width: auto;
             height: auto;
             z-index: -100;
-            object-fit: cover; /* Ensures the video covers the screen without distortion */
-            filter: brightness(0.8); /* Reduced dim effect for better visibility */
+            object-fit: cover;
+            filter: brightness(0.5) contrast(1.2);
         }
-
-        /* REMOVED the overlay div completely */
 
         h1, h2, h3 {
             font-family: 'Oxanium', sans-serif;
-            color: #FFFFFF; /* Changed to white for better visibility on dark background */
+            color: #FFFFFF;
         }
         h1 {
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.7); /* Enhanced shadow for readability */
-        }
-        h2 {
-            color: #1F2937; /* Main section headings */
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.7);
         }
 
-        /* Keyframe Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -77,54 +70,49 @@
             }
         }
 
-
-        /* Applying Animations */
         .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
         .animate-fade-in-up { animation: fadeInUp 0.7s ease-out forwards; }
         .animate-slide-in-left { animation: slideInLeft 0.9s ease-out forwards; }
         .loading-animation {
             border: 4px solid rgba(150, 150, 150, 0.3);
-            border-top: 4px solid #60A5FA; /* Soft blue */
+            border-top: 4px solid #60A5FA;
             border-radius: 50%;
             width: 50px;
             height: 50px;
             animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
         }
 
-        /* Base element styling - MADE MORE TRANSPARENT */
         .card-base {
-            background-color: rgba(255, 255, 255, 0.7); /* Increased transparency */
-            border: 1px solid rgba(226, 232, 240, 0.5); /* Lighter border */
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+            background-color: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
             border-radius: 1rem;
             padding: 3rem;
             transition: all 0.3s ease-in-out;
-            backdrop-filter: blur(8px); /* Stronger frosted glass effect */
+            backdrop-filter: blur(10px);
         }
         .card-base:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* More pronounced shadow on hover */
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
         }
 
-        /* Header specific styles - MADE MORE TRANSPARENT */
         header.card-base {
-            background-color: rgba(255, 255, 255, 0.75); /* More transparent for header */
+            background-color: rgba(30, 41, 59, 0.9);
             animation: futuristicGlow 4s ease-in-out infinite;
         }
 
-        /* Button styles */
         .modern-btn {
-            background: linear-gradient(45deg, #60A5FA, #3B82F6); /* Soft blue gradient */
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
             color: #FFF;
             font-weight: 600;
             padding: 0.9rem 2.2rem;
-            border-radius: 0.75rem; /* More rounded */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Soft shadow */
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
             transition: all 0.3s ease-in-out;
             border: none;
             cursor: pointer;
             background-size: 200% auto;
-            position: relative; /* For pseudo-element glow */
+            position: relative;
             overflow: hidden;
             z-index: 1;
         }
@@ -135,7 +123,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.1); /* Subtle internal light shimmer */
+            background: rgba(255,255,255,0.15);
             transform: scaleX(0);
             transform-origin: left;
             transition: transform 0.4s ease-out;
@@ -146,98 +134,95 @@
         }
         .modern-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3); /* Lifted shadow */
-            background-position: right center; /* Gradient shift */
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+            background-position: right center;
         }
         .modern-btn:disabled {
-            background: #CBD5E1;
-            color: #64748B;
+            background: #475569;
+            color: #94a3b8;
             box-shadow: none;
             cursor: not-allowed;
             opacity: 0.7;
             transform: none;
         }
 
-        /* Form input styles */
         input[type="text"], input[type="email"], input[type="password"], input[type="number"], textarea, select {
-            background-color: rgba(248, 250, 252, 0.7); /* Slightly transparent */
-            border: 1px solid #CBD5E1; /* Subtle border */
-            color: #334155;
+            background-color: rgba(15, 23, 42, 0.7);
+            border: 1px solid #334155;
+            color: #e2e8f0;
             border-radius: 0.6rem;
             padding: 0.8rem 1.2rem;
             transition: all 0.2s ease-in-out;
-            backdrop-filter: blur(5px); /* Frosted effect */
+            backdrop-filter: blur(5px);
         }
         input[type="text"]::placeholder, input[type="email"]::placeholder, input[type="password"]::placeholder, textarea::placeholder, select::placeholder {
-            color: #94A3B8; /* Muted placeholder text */
+            color: #94a3b8;
         }
         input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #60A5FA; /* Soft blue focus glow */
-            box-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
         }
         
-        /* Table styles - MADE MORE TRANSPARENT */
         table {
-            background-color: rgba(255, 255, 255, 0.7); /* Transparent white */
+            background-color: rgba(30, 41, 59, 0.7);
             border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px); /* Frosted effect */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
         }
         th {
-            background: rgba(226, 232, 240, 0.7); /* Light gray header background */
-            color: #475569; /* Darker gray for headers */
+            background: rgba(30, 41, 59, 0.9);
+            color: #cbd5e1;
             font-weight: 600;
             padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.3);
         }
         td {
-            border-bottom: 1px solid rgba(226, 232, 240, 0.5); /* Lighter border */
-            color: #475569;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            color: #e2e8f0;
             padding: 1rem 1.5rem;
         }
         tbody tr:last-child td {
             border-bottom: none;
         }
         tbody tr:hover {
-            background-color: rgba(240, 244, 248, 0.5); /* Subtle light gray hover effect */
+            background-color: rgba(51, 65, 85, 0.4);
         }
 
-        /* Section specific styles - MADE MORE TRANSPARENT */
         .section-light-blue-tint { 
-            background-color: rgba(248, 250, 252, 0.7);
-            border-left: 5px solid rgba(165, 214, 249, 0.7); /* Very light blue accent */
+            background-color: rgba(30, 41, 59, 0.8);
+            border-left: 5px solid rgba(59, 130, 246, 0.7);
         }
         .section-light-green-tint {
-            background-color: rgba(248, 250, 252, 0.7);
-            border-left: 5px solid rgba(129, 199, 132, 0.7); /* Very light green accent */
+            background-color: rgba(30, 41, 59, 0.8);
+            border-left: 5px solid rgba(16, 185, 129, 0.7);
         }
         .section-light-orange-tint {
-            background-color: rgba(248, 250, 252, 0.7);
-            border-left: 5px solid rgba(255, 204, 128, 0.7); /* Very light orange accent */
+            background-color: rgba(30, 41, 59, 0.8);
+            border-left: 5px solid rgba(245, 158, 11, 0.7);
         }
 
-        /* Content areas - MADE MORE TRANSPARENT */
         .direct-content-area {
-            background-color: rgba(240, 244, 248, 0.7); /* Transparent background */
-            border: 1px solid rgba(209, 216, 224, 0.5); /* Lighter border */
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            background-color: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
             padding: 2rem;
             border-radius: 0.75rem;
             white-space: pre-wrap;
             line-height: 1.6;
-            color: #475569;
-            backdrop-filter: blur(5px); /* Frosted effect */
+            color: #cbd5e1;
+            backdrop-filter: blur(5px);
         }
 
-        /* Custom Modal Styling - Adapting to theme */
         .custom-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent dark overlay */
+            background-color: rgba(0, 0, 0, 0.7);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -251,22 +236,27 @@
             visibility: visible;
         }
         .custom-modal-content {
-            background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
-            color: #334155;
-            border: 1px solid #D1D8E0;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            background-color: rgba(30, 41, 59, 0.95);
+            color: #e2e8f0;
+            border: 1px solid #4F46E5;
+            box-shadow: 0 10px 35px rgba(79, 70, 229, 0.3);
             border-radius: 1rem;
             padding: 2.5rem;
             position: relative;
             transform: translateY(20px);
             transition: transform 0.3s ease-out;
-            backdrop-filter: blur(10px); /* Strong frosted effect */
+            backdrop-filter: blur(15px);
+            width: 90%;
+            max-width: 500px;
         }
         .custom-modal.flex .custom-modal-content {
             transform: translateY(0);
         }
         .custom-modal-close-button {
-            color: #64748B;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #94a3b8;
             font-size: 2rem;
             font-weight: 300;
             cursor: pointer;
@@ -275,9 +265,9 @@
         .custom-modal-close-button:hover {
             color: #EF4444;
         }
-        .custom-modal .btn-primary-modal {
-            background: linear-gradient(45deg, #60A5FA, #3B82F6);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        .btn-primary-modal {
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
             color: #FFF;
             font-weight: 600;
             padding: 0.75rem 1.75rem;
@@ -286,86 +276,67 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .custom-modal .btn-primary-modal:hover {
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
-            transform: translateY(-1px);
+        .btn-primary-modal:hover {
+            box-shadow: 0 5px 18px rgba(79, 70, 229, 0.4);
+            transform: translateY(-2px);
         }
-        .custom-modal .btn-secondary-modal {
-            background-color: #E2E8F0;
-            color: #475569;
-            border: 1px solid #CBD5E1;
+        .btn-secondary-modal {
+            background-color: #475569;
+            color: #e2e8f0;
+            border: 1px solid #4F46E5;
             font-weight: 500;
             padding: 0.75rem 1.75rem;
             border-radius: 0.6rem;
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .custom-modal .btn-secondary-modal:hover {
-            background-color: #D1D8E0;
-            color: #334155;
+        .btn-secondary-modal:hover {
+            background-color: #4F46E5;
+            color: white;
         }
 
-        /* Icon Colors */
-        .text-purple-500 {
-            color: #8B5CF6;
+        .teammate-entry {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
         }
-        .text-blue-500 {
-            color: #3B82F6;
+        .teammate-entry input {
+            flex: 1;
         }
-        .text-indigo-500 {
-            color: #6366F1;
+        .remove-teammate-btn {
+            background: linear-gradient(45deg, #EF4444, #DC2626) !important;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
         }
-        .text-yellow-500 {
-            color: #F59E0B;
+
+        .logo-placeholder {
+            width: 100px;
+            height: 50px;
+            background: linear-gradient(45deg, #6366F1, #4F46E5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
         }
-        .text-red-500 {
-            color: #EF4444;
-        }
-        .text-teal-500 {
-            color: #10B981;
-        }
-        .modern-btn.\!bg-green-600 {
-            background: linear-gradient(45deg, #34D399, #10B981);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        .modern-btn.\!bg-green-600:hover {
-            box-shadow: 0 8px 18px rgba(0,0,0,0.25);
-        }
-        .modern-btn.\!bg-red-500 {
-            background: linear-gradient(45deg, #F87171, #EF4444);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        .modern-btn.\!bg-red-500:hover {
-            box-shadow: 0 8px 18px rgba(0,0,0,0.25);
-        }
-        .modern-btn.\!bg-gray-700 {
-            background: #94A3B8;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        }
-        .modern-btn.\!bg-gray-700:hover {
-            background: #64748B;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
-        }
-        .text-red-700 { color: #DC2626; }
-        .text-cyan-300 { color: #60A5FA; }
-        .text-gray-300 { color: #475569; }
-        .text-blue-300 { color: #3B82F6; }
-        .text-purple-300 { color: #8B5CF6; }
-        .text-blue-400 { color: #3B82F6; }
-        .text-purple-400 { color: #A78BFA; }
-        .text-yellow-400 { color: #FBBF24; }
-        .text-orange-400 { color: #FB923C; }
     </style>
 </head>
 <body class="py-8 px-4">
-    
-    <!-- REMOVED the overlay div -->
-   
+    <!-- Video Background -->
+    <video autoplay muted loop id="background-video">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-digital-waves-54628-large.mp4" type="video/mp4">
+    </video>
 
-    <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-100 z-50">
+    <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-900 z-50">
         <div class="flex flex-col items-center">
             <div class="loading-animation"></div>
-            <p class="mt-4 text-xl font-semibold text-gray-700">Loading Tournament Site...</p>
+            <p class="mt-4 text-xl font-semibold text-white">Loading Tournament Site...</p>
         </div>
     </div>
 
@@ -373,84 +344,82 @@
 
         <header class="text-center mb-12 w-full p-8 card-base shadow-lg animate-fade-in">
             <div class="flex justify-center items-center mb-4">
-                <img src="logo.png" alt="THA Logo" width="100" height="50">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-                <h1 class="text-5xl lg:text-6xl font-extrabold animate-slide-in-left">
-                      THA Tournaments
+                <div class="logo-placeholder">THA</div>
+                <h1 class="text-5xl lg:text-6xl font-extrabold animate-slide-in-left ml-6">
+                    THA Tournaments
                 </h1>
             </div>
             <p class="text-xl lg:text-2xl text-cyan-300 font-semibold mb-8 animate-fade-in">Join the ultimate tournament experience!</p>
             
-            <div class="border-b-4 border-gray-200 mt-8 mb-6"></div>
+            <div class="border-b-2 border-indigo-500 border-opacity-50 mt-8 mb-6"></div>
 
-            <div class="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-4 sm:space-y-0 text-gray-700">
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-4 sm:space-y-0 text-gray-300">
                 <span class="text-md sm:text-lg font-medium text-center sm:text-left">
-                    Welcome, <span class="font-bold text-red-700" id="loggedInEmail">Guest</span>!
+                    Welcome, <span class="font-bold text-amber-400" id="loggedInEmail">Guest</span>!
                 </span>
-                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto items-center sm:items-stretch">
-    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto items-center sm:items-stretch">
-    <button id="authButton" class="modern-btn w-full sm:w-auto">
-        <i class="fas fa-sign-in-alt mr-2"></i>Login / Register
-    </button>
+                <div class="flex flex-wrap justify-center gap-3 w-full sm:w-auto">
+                    <button id="authButton" class="modern-btn">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login / Register
+                    </button>
 
-    <a href="/registered.html" id="myRegistrationsButton" class="hidden modern-btn !bg-green-600 hover:!bg-green-600 w-full sm:w-auto text-center">
-    <i class="fas fa-clipboard-list mr-2"></i>My Registrations
-</a>
+                    <a href="/registered.html" id="myRegistrationsButton" class="hidden modern-btn !bg-green-600">
+                        <i class="fas fa-clipboard-list mr-2"></i>My Registrations
+                    </a>
 
+                    <button id="walletButton" class="modern-btn !bg-purple-600">
+                        <i class="fas fa-wallet mr-2"></i>Wallet
+                    </button>
 
-    <button id="logoutButton" class="hidden modern-btn !bg-red-500 hover:!bg-red-500 w-full sm:w-auto">
-        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-    </button>
-</div>
+                    <button id="logoutButton" class="hidden modern-btn !bg-red-500">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
             </div>
-
-    <!-- Add this in the header section after other buttons -->
-<button id="walletButton" class="modern-btn !bg-indigo-600 hover:!bg-indigo-600 w-full sm:w-auto">
-    <i class="fas fa-wallet mr-2"></i>Wallet
-</button>
         </header>
 
         <section class="w-full mb-12 card-base section-light-blue-tint animate-fade-in-up">
             <h2 class="text-3xl lg:text-4xl font-bold mb-8 text-center flex items-center justify-center">
-                <i class="fas fa-calendar-check text-purple-500 mr-3"></i>Current & Upcoming Matches
+                <i class="fas fa-calendar-check text-purple-400 mr-3"></i>Current & Upcoming Matches
             </h2>
             <div id="matchesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <p class="text-center text-gray-600 md:col-span-3" id="loadingMatchesMessage">Loading matches...</p>
+                <p class="text-center text-gray-400 md:col-span-3" id="loadingMatchesMessage">Loading matches...</p>
             </div>
-            <p id="noMatchesMessage" class="hidden text-center text-gray-600 mt-6">No upcoming matches available for registration.</p>
+            <p id="noMatchesMessage" class="hidden text-center text-gray-400 mt-6">No upcoming matches available for registration.</p>
         </section>
 
         <section class="w-full mb-12 card-base section-light-green-tint animate-fade-in-up">
             <h2 class="text-3xl lg:text-4xl font-bold mb-8 text-center flex items-center justify-center">
-                <i class="fas fa-user-plus text-blue-500 mr-3"></i>Register for a Tournament
+                <i class="fas fa-user-plus text-blue-400 mr-3"></i>Register for a Tournament
             </h2>
-            <p id="registrationMessage" class="hidden text-center text-red-500 font-semibold mb-6"></p>
+            <p id="registrationMessage" class="hidden text-center text-red-400 font-semibold mb-6"></p>
             <form id="registrationForm" class="space-y-6">
-                <div id="loggedInUserInfo" class="hidden bg-[#EFF6FF] p-4 rounded-lg text-blue-800 font-medium border border-blue-200 shadow-sm">
+                <div id="loggedInUserInfo" class="hidden bg-indigo-900 bg-opacity-50 p-4 rounded-lg text-blue-300 font-medium border border-indigo-500 shadow-sm">
                     Logged in as: <span id="regEmail" class="font-semibold"></span> (ID: <span id="regUserId" class="font-semibold"></span>)
                 </div>
-                <div id="loginPrompt" class="text-center text-red-500 font-bold hidden text-lg">
+                <div id="loginPrompt" class="text-center text-red-400 font-bold hidden text-lg">
                     Please log in or register to participate in tournaments.
                 </div>
 
                 <div>
-                    <label for="matchSelect" class="block text-gray-700 text-base font-bold mb-2">Select Match Type & Time:</label>
-                    <select id="matchSelect" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-300" required>
+                    <label for="matchSelect" class="block text-gray-300 text-base font-bold mb-2">Select Match Type & Time:</label>
+                    <select id="matchSelect" class="w-full py-3 px-4 focus:ring-2 focus:ring-indigo-500" required>
                         <option value="">-- Loading Matches --</option>
                     </select>
                 </div>
                 <div>
-                    <label for="iglIGN" class="block text-gray-700 text-base font-bold mb-2">Your IGN (In-Game Name):</label>
-                    <input type="text" id="iglIGN" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4" placeholder="Your Free Fire IGN" required>
+                    <label for="iglIGN" class="block text-gray-300 text-base font-bold mb-2">Your IGN (In-Game Name):</label>
+                    <input type="text" id="iglIGN" class="w-full py-3 px-4" placeholder="Your Free Fire IGN" required>
                 </div>
                 <div>
-                    <label for="iglFFID" class="block text-gray-700 text-base font-bold mb-2">Your FFID (Free Fire ID):</label>
-                    <input type="text" id="iglFFID" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4" placeholder="Your 9-10 digit Free Fire ID" required>
+                    <label for="iglFFID" class="block text-gray-300 text-base font-bold mb-2">Your FFID (Free Fire ID):</label>
+                    <input type="text" id="iglFFID" class="w-full py-3 px-4" placeholder="Your 9-10 digit Free Fire ID" required>
                 </div>
-                <div id="teammatesSection" class="hidden border border-blue-200 p-6 rounded-lg bg-[#F8FAFC] shadow-sm">
-                    <h3 class="text-xl font-bold text-blue-600 mb-4">Teammates (for Duo/Squad/Team Matches)</h3>
+                <div id="teammatesSection" class="hidden border border-indigo-500 border-opacity-30 p-6 rounded-lg bg-slate-800 bg-opacity-50 shadow-sm">
+                    <h3 class="text-xl font-bold text-indigo-300 mb-4">Teammates (for Duo/Squad/Team Matches)</h3>
                     <div id="teammatesList" class="space-y-4">
-                        </div>
-                    <button type="button" id="addTeammateButton" class="mt-5 modern-btn !bg-gray-700 hover:!bg-gray-700">
+                        <!-- Teammate inputs will be added here -->
+                    </div>
+                    <button type="button" id="addTeammateButton" class="mt-5 modern-btn !bg-gray-700">
                         <i class="fas fa-plus-circle mr-1"></i>Add Teammate
                     </button>
                 </div>
@@ -462,33 +431,33 @@
 
         <section class="w-full mb-12 card-base section-light-orange-tint animate-fade-in-up">
             <h2 class="text-3xl lg:text-4xl font-bold mb-8 text-center flex items-center justify-center">
-                <i class="fas fa-calendar-days text-indigo-500 mr-3"></i>Full Daily Schedule
+                <i class="fas fa-calendar-days text-indigo-400 mr-3"></i>Full Daily Schedule
             </h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full rounded-lg shadow-sm">
+            <div class="overflow-x-auto rounded-xl">
+                <table class="min-w-full">
                     <thead>
                         <tr class="uppercase text-sm leading-normal">
                             <th class="py-4 px-6 text-left rounded-tl-lg">Time</th>
                             <th class="py-4 px-6 text-left">Event / Description</th>
-                            <th class="py-4 px-6 text-left">Notes</th>
+                            <th class="py-4 px-6 text-left rounded-tr-lg">Notes</th>
                         </tr>
                     </thead>
                     <tbody id="scheduleTableBody" class="text-base font-light">
                         <tr>
-                            <td colspan="3" class="py-6 text-center text-gray-600" id="loadingScheduleMessage">Loading schedule...</td>
+                            <td colspan="3" class="py-6 text-center text-gray-400" id="loadingScheduleMessage">Loading schedule...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <p id="noScheduleMessage" class="hidden text-center text-gray-600 mt-6">No schedule items configured yet.</p>
+            <p id="noScheduleMessage" class="hidden text-center text-gray-400 mt-6">No schedule items configured yet.</p>
         </section>
 
         <section class="w-full mb-12 card-base section-light-blue-tint animate-fade-in-up">
             <h2 class="text-3xl lg:text-4xl font-bold mb-8 text-center flex items-center justify-center">
-                <i class="fas fa-money-bill-wave text-yellow-500 mr-3"></i>Entry Fee & Prize Distribution
+                <i class="fas fa-money-bill-wave text-yellow-400 mr-3"></i>Entry Fee & Prize Distribution
             </h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full rounded-lg shadow-sm">
+            <div class="overflow-x-auto rounded-xl">
+                <table class="min-w-full">
                     <thead>
                         <tr class="uppercase text-sm leading-normal">
                             <th class="py-4 px-6 text-left rounded-tl-lg">Match Type</th>
@@ -501,39 +470,44 @@
                     </thead>
                     <tbody id="prizeTableBody" class="text-base font-light">
                         <tr>
-                            <td colspan="6" class="py-6 text-center text-gray-600" id="loadingPrizeMessage">Loading prize information...</td>
+                            <td colspan="6" class="py-6 text-center text-gray-400" id="loadingPrizeMessage">Loading prize information...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <p id="noPrizeMessage" class="hidden text-center text-gray-600 mt-6">No prize distribution information configured yet.</p>
+            <p id="noPrizeMessage" class="hidden text-center text-gray-400 mt-6">No prize distribution information configured yet.</p>
         </section>
 
         <section class="w-full mb-12 card-base section-light-green-tint animate-fade-in-up">
             <h2 class="text-3xl lg:text-4xl font-bold mb-8 text-center flex items-center justify-center">
-                <i class="fas fa-book text-red-500 mr-3"></i>Tournament Rules & Conditions
+                <i class="fas fa-book text-red-400 mr-3"></i>Tournament Rules & Conditions
             </h2>
             <div id="rulesContent" class="direct-content-area">
-                <p class="text-center text-gray-600">Loading rules...</p>
+                <p class="text-center text-gray-400">Loading rules...</p>
             </div>
         </section>
 
         <section class="w-full card-base section-light-orange-tint animate-fade-in-up">
             <h2 class="text-3xl lg:text-4xl font-bold mb-8 text-center flex items-center justify-center">
-                <i class="fas fa-headset text-teal-500 mr-3"></i>Contact & Support
+                <i class="fas fa-headset text-teal-400 mr-3"></i>Contact & Support
             </h2>
             <div id="contactContent" class="direct-content-area">
-                <p class="text-center text-gray-600">Loading contact information...</p>
+                <p class="text-center text-gray-400">Loading contact information...</p>
             </div>
         </section>
 
+        <footer class="w-full mt-12 text-center text-gray-400 py-6">
+            <p>© 2025 THA Tournaments. All rights reserved.</p>
+            <p class="mt-2 text-sm">Designed for competitive gaming enthusiasts</p>
+        </footer>
     </div>
 
     <div id="customModal" class="custom-modal">
-        <div class="custom-modal-content w-full max-w-md mx-auto">
+        <div class="custom-modal-content">
             <span class="custom-modal-close-button" onclick="closeModal()">&times;</span>
             <div id="modalContent" class="py-6 px-4 sm:px-6">
-                </div>
+                <!-- Modal content will be inserted here -->
+            </div>
             <div id="modalButtons" class="mt-8 flex justify-center space-x-4">
                 <button id="modalConfirmBtn" class="hidden btn-primary-modal">
                     Confirm
@@ -565,30 +539,23 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     let currentUser = null;
-    let currentMaxTeammates = 0; // To track max teammates based on match type
-    
-    // ===== TIMER FUNCTIONS =====
-    // Global array to store timer references
+    let currentMaxTeammates = 0;
     let activeTimers = [];
     
-    // Function to calculate time until match starts
+    // ===== TIMER FUNCTIONS =====
     function getTimeUntilMatch(matchTimeStr) {
         const now = new Date();
         const [hours, minutes] = matchTimeStr.split(':').map(Number);
         
-        // Create match date (today at specified time)
         const matchDate = new Date();
         matchDate.setHours(hours, minutes, 0, 0);
         
-        // If match time has already passed today, set to tomorrow
         if (matchDate < now) {
             matchDate.setDate(matchDate.getDate() + 1);
         }
         
-        // Calculate difference in milliseconds
         const diff = matchDate - now;
         
-        // Calculate hours, minutes, seconds
         const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
         const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const secondsLeft = Math.floor((diff % (1000 * 60)) / 1000);
@@ -601,12 +568,10 @@
         };
     }
     
-    // Function to format time values with leading zeros
     function formatTimeUnit(value) {
         return value.toString().padStart(2, '0');
     }
     
-    // Function to start timer for a match card
     function startMatchTimer(matchId, matchTime) {
         const timerElement = document.getElementById(`timer-${matchId}`);
         if (!timerElement) return;
@@ -614,39 +579,33 @@
         const timerInterval = setInterval(() => {
             const timeData = getTimeUntilMatch(matchTime);
             
-            // Check if match has started
             if (timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0) {
-                timerElement.innerHTML = `<span class="text-red-500">Match Started!</span>`;
+                timerElement.innerHTML = `<span class="text-red-500 font-bold">Match Started!</span>`;
                 clearInterval(timerInterval);
                 return;
             }
             
-            // Check if match is within 30 minutes
             if (timeData.hours === 0 && timeData.minutes < 30) {
                 timerElement.innerHTML = `
-                    <span class="text-orange-500 font-bold">
+                    <span class="text-orange-400 font-bold">
                         ${formatTimeUnit(timeData.minutes)}m ${formatTimeUnit(timeData.seconds)}s
                     </span>
                 `;
-            } 
-            // More than 30 minutes remaining
-            else {
+            } else {
                 timerElement.innerHTML = `
-                    <span class="text-green-600">
+                    <span class="text-green-400 font-medium">
                         ${formatTimeUnit(timeData.hours)}h ${formatTimeUnit(timeData.minutes)}m
                     </span>
                 `;
             }
         }, 1000);
         
-        // Store timer reference
         activeTimers.push({
             id: matchId,
             interval: timerInterval
         });
     }
     
-    // Function to clear all timers when page unloads
     function clearAllTimers() {
         activeTimers.forEach(timer => clearInterval(timer.interval));
         activeTimers = [];
@@ -667,14 +626,12 @@
                 return;
             }
 
-            modalContentEl.innerHTML = `<p class="text-xl font-semibold text-gray-700">${messageHtml}</p>`;
+            modalContentEl.innerHTML = `<div class="text-lg text-gray-200">${messageHtml}</div>`;
             
-            // Reset button states
             modalOkBtn.classList.add('hidden');
             modalConfirmBtn.classList.add('hidden');
             modalCancelBtn.classList.add('hidden');
 
-            // Configure buttons based on modal type
             if (type === 'confirm_cancel') {
                 modalConfirmBtn.classList.remove('hidden');
                 modalCancelBtn.classList.remove('hidden');
@@ -697,31 +654,32 @@
     // ===== AUTH MODALS =====
     const showLoginRegisterModal = () => {
         document.getElementById('modalContent').innerHTML = `
-            <h3 class="text-2xl font-bold text-blue-500 mb-6">Login / Register</h3>
+            <h3 class="text-2xl font-bold text-indigo-300 mb-6 text-center">Login / Register</h3>
             <form id="authForm" class="space-y-4">
                 <div>
-                    <label for="authEmail" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-                    <input type="email" id="authEmail" class="shadow appearance-none border rounded-lg w-full py-2 px-3" placeholder="your@example.com" required>
+                    <label for="authEmail" class="block text-gray-300 text-sm font-bold mb-2">Email:</label>
+                    <input type="email" id="authEmail" class="w-full py-2 px-3" placeholder="your@example.com" required>
                 </div>
                 <div>
-                    <label for="authPassword" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
-                    <input type="password" id="authPassword" class="shadow appearance-none border rounded-lg w-full py-2 px-3" placeholder="Minimum 6 characters" required>
+                    <label for="authPassword" class="block text-gray-300 text-sm font-bold mb-2">Password:</label>
+                    <input type="password" id="authPassword" class="w-full py-2 px-3" placeholder="Minimum 6 characters" required>
                 </div>
                 <button type="submit" id="loginBtn" class="modern-btn w-full">
                     Login <i class="fas fa-sign-in-alt ml-2"></i>
                 </button>
-                <button type="button" id="registerNewBtn" class="modern-btn !bg-green-600 hover:!bg-green-600 w-full mt-2">
+                <button type="button" id="registerNewBtn" class="modern-btn !bg-green-600 w-full mt-2">
                     Register New Account <i class="fas fa-user-plus ml-2"></i>
                 </button>
             </form>
-            <p id="authError" class="text-red-500 text-sm mt-4"></p>
+            <p id="authError" class="text-red-400 text-center mt-4"></p>
         `;
-        document.getElementById('customModal').classList.add('flex'); // Show modal
+        document.getElementById('customModal').classList.add('flex');
 
         document.getElementById('authForm').addEventListener('submit', (e) => {
             e.preventDefault();
             handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'login');
         });
+        
         document.getElementById('registerNewBtn').addEventListener('click', () => {
             handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'register');
         });
@@ -729,111 +687,136 @@
 
     const handleAuth = async (email, password, type) => {
         const authError = document.getElementById('authError');
-        authError.textContent = ''; // Clear previous errors
+        authError.textContent = '';
 
         try {
             if (type === 'login') {
                 await signInWithEmailAndPassword(auth, email, password);
-                await openModal('Login successful!', 'ok');
-                closeModal(); // Close the auth modal
-            } else { // type === 'register'
+                await openModal('Login successful! Welcome back.', 'ok');
+                closeModal();
+            } else {
                 await createUserWithEmailAndPassword(auth, email, password);
                 await openModal('Registration successful! You are now logged in.', 'ok');
-                closeModal(); // Close the auth modal
+                closeModal();
             }
         } catch (error) {
             let errorMessage = 'An unknown error occurred.';
             switch (error.code) {
                 case 'auth/user-not-found':
                 case 'auth/wrong-password':
-                case 'auth/invalid-credential': // More generic for newer Firebase versions
+                case 'auth/invalid-credential':
                     errorMessage = 'Invalid email or password.';
                     break;
                 case 'auth/email-already-in-use':
-                    errorMessage = 'This email is already registered. Try logging in.';
+                    errorMessage = 'This email is already registered.';
                     break;
                 case 'auth/weak-password':
-                    errorMessage = 'Password is too weak. It must be at least 6 characters.';
+                    errorMessage = 'Password must be at least 6 characters.';
                     break;
                 case 'auth/invalid-email':
                     errorMessage = 'Invalid email address format.';
                     break;
                 default:
-                    console.error("Auth error:", error.code, error.message);
-                    errorMessage = `Authentication failed: ${error.message}`;
+                    errorMessage = `Authentication error: ${error.message}`;
             }
             authError.textContent = errorMessage;
         }
     };
 
     // ===== CORE TOURNAMENT FUNCTIONS =====
-
-    // Helper to check if a match is open for registration (not completed and not closed)
     function isMatchOpenForRegistration(matchTimeStr) {
         try {
             const now = new Date();
             const [hours, minutes] = matchTimeStr.split(':').map(Number);
             const matchDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
-            // Registration closes 20 minutes before match time
             const registrationCloseTime = new Date(matchDateTime.getTime() - 20 * 60 * 1000);
             return now < registrationCloseTime;
         } catch (e) {
-            console.error("Error parsing match time for registration open check:", e);
+            console.error("Error parsing match time:", e);
             return false;
         }
     }
 
-    // Fetch and display active match slots
     const fetchAndDisplayMatchSlots = async () => {
         const matchesContainer = document.getElementById('matchesContainer');
         const matchSelect = document.getElementById('matchSelect');
         const loadingMatchesMessage = document.getElementById('loadingMatchesMessage');
         const noMatchesMessage = document.getElementById('noMatchesMessage');
 
-        matchesContainer.innerHTML = ''; // Clear previous matches
-        matchSelect.innerHTML = '<option value="">-- Loading Matches --</option>'; // Clear previous options
+        matchesContainer.innerHTML = '';
+        matchSelect.innerHTML = '<option value="">-- Loading Matches --</option>';
         loadingMatchesMessage.classList.remove('hidden');
         noMatchesMessage.classList.add('hidden');
 
-        const response = await fetch('https://tha-tournaments.onrender.com/api/match_slots');
-        const result = await response.json();
+        try {
+            // Simulated API response with mock data
+            const mockMatchSlots = [
+                {
+                    id: "1",
+                    type: "Solo Match",
+                    time: "15:00",
+                    min_players: 1,
+                    max_players: 50,
+                    entry: 25,
+                    prize: "₹1,250",
+                    active: true
+                },
+                {
+                    id: "2",
+                    type: "Duo Match",
+                    time: "17:30",
+                    min_players: 2,
+                    max_players: 25,
+                    entry: 45,
+                    prize: "₹1,125",
+                    active: true
+                },
+                {
+                    id: "3",
+                    type: "Squad Match",
+                    time: "20:00",
+                    min_players: 4,
+                    max_players: 12,
+                    entry: 180,
+                    prize: "₹2,160",
+                    active: true
+                }
+            ];
 
-        loadingMatchesMessage.classList.add('hidden');
+            loadingMatchesMessage.classList.add('hidden');
 
-        if (result.success && result.matchSlots.length > 0) {
-            const activeUpcomingMatches = result.matchSlots.filter(match => 
+            const activeUpcomingMatches = mockMatchSlots.filter(match => 
                 match.active && isMatchOpenForRegistration(match.time)
             );
 
             if (activeUpcomingMatches.length > 0) {
-                activeUpcomingMatches.sort((a, b) => a.time.localeCompare(b.time)); // Sort by time
+                activeUpcomingMatches.sort((a, b) => a.time.localeCompare(b.time));
 
-                matchesContainer.innerHTML = ''; // Ensure cleared if loading message was there
-
-                matchSelect.innerHTML = '<option value="">-- Select Match Type & Time --</option>'; // Default option
+                matchesContainer.innerHTML = '';
+                matchSelect.innerHTML = '<option value="">-- Select Match Type & Time --</option>';
+                
                 activeUpcomingMatches.forEach(match => {
-                    // Calculate match status
                     const timeData = getTimeUntilMatch(match.time);
                     let timerHtml = '';
                     
                     if (timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0) {
-                        timerHtml = `<p class="text-lg font-bold text-red-500">Match Started!</p>`;
+                        timerHtml = `<p class="text-red-400 font-bold mt-3">Match Started!</p>`;
                     } else {
                         timerHtml = `
-                            <p class="text-sm font-semibold text-gray-600">Starts in:</p>
-                            <p id="timer-${match.id}" class="text-lg font-bold text-green-600">
+                            <p class="text-sm text-gray-400 mt-2">Starts in:</p>
+                            <p id="timer-${match.id}" class="text-lg font-bold text-green-400">
                                 ${formatTimeUnit(timeData.hours)}h ${formatTimeUnit(timeData.minutes)}m
                             </p>
                         `;
                     }
                     
                     const cardHtml = `
-                        <div class="card-base p-8 border-l-4 border-blue-300 transform transition duration-300 hover:scale-105">
-                            <h3 class="text-2xl font-bold text-blue-600 mb-2">${match.type}</h3>
-                            <p class="text-gray-700 mb-1"><i class="fas fa-clock mr-2 text-blue-500"></i>Time: <span class="font-semibold">${match.time}</span></p>
-                            <p class="text-gray-700 mb-1"><i class="fas fa-users mr-2 text-purple-500"></i>Players: <span class="font-semibold">${match.min_players} - ${match.max_players}</span></p>
-                            <p class="text-gray-700 mb-1"><i class="fas fa-rupee-sign mr-2 text-yellow-500"></i>Entry: <span class="font-semibold">₹${(match.entry || 0).toFixed(2)}</span></p>
-                            <p class="text-gray-700"><i class="fas fa-trophy mr-2 text-orange-400"></i>Prize: <span class="font-semibold">${match.prize || 'N/A'}</span></p>
+                        <div class="card-base p-6 border-l-4 border-indigo-500 transform transition duration-300 hover:scale-[1.02]">
+                            <h3 class="text-xl font-bold text-indigo-300 mb-2">${match.type}</h3>
+                            <p class="text-gray-300 mb-1"><i class="fas fa-clock mr-2 text-blue-400"></i>Time: <span class="font-semibold">${match.time}</span></p>
+                            <p class="text-gray-300 mb-1"><i class="fas fa-users mr-2 text-purple-400"></i>Players: <span class="font-semibold">${match.min_players} - ${match.max_players}</span></p>
+                            <p class="text-gray-300 mb-1"><i class="fas fa-rupee-sign mr-2 text-yellow-400"></i>Entry: <span class="font-semibold">₹${(match.entry || 0).toFixed(2)}</span></p>
+                            <p class="text-gray-300"><i class="fas fa-trophy mr-2 text-amber-400"></i>Prize: <span class="font-semibold">${match.prize || 'N/A'}</span></p>
                             
                             <div class="mt-4 text-center">
                                 ${timerHtml}
@@ -848,21 +831,16 @@
                     matchesContainer.insertAdjacentHTML('beforeend', cardHtml);
                     matchSelect.insertAdjacentHTML('beforeend', `<option value="${match.id}" data-match-type="${match.type}" data-match-time="${match.time}">${match.time} - ${match.type}</option>`);
                     
-                    // Start timer if match hasn't started yet
                     if (!(timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0)) {
                         startMatchTimer(match.id, match.time);
                     }
                 });
 
-                // Add event listeners to the new "Register Now!" buttons
                 document.querySelectorAll('.register-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const matchId = button.dataset.matchId;
-                        // Set the selected match in the registration form dropdown
                         document.getElementById('matchSelect').value = matchId;
-                        // Scroll to registration form
                         document.getElementById('registrationForm').scrollIntoView({ behavior: 'smooth' });
-                        // Trigger change to update teammate section
                         const event = new Event('change');
                         document.getElementById('matchSelect').dispatchEvent(event);
                     });
@@ -870,66 +848,58 @@
 
             } else {
                 noMatchesMessage.classList.remove('hidden');
-                matchSelect.innerHTML = '<option value="">-- No active matches for registration --</option>';
+                matchSelect.innerHTML = '<option value="">-- No active matches --</option>';
             }
-        } else {
-            noMatchesMessage.classList.remove('hidden');
-            if (!result.success) {
-                await openModal(result.message || 'Failed to load match slots.');
-            }
+        } catch (error) {
+            console.error('Error loading matches:', error);
+            loadingMatchesMessage.textContent = 'Failed to load matches. Please try again later.';
+            await openModal('Failed to load match data. Please check your connection.');
         }
-        // Populate dailyMatchSlots for registration form logic
-        populateDailyMatchSlots(result.matchSlots);
+        populateDailyMatchSlots(mockMatchSlots);
     };
 
-    let loadedMatchSlots = []; // Global variable to store fetched match slots
+    let loadedMatchSlots = [];
 
-    // This function populates a global variable used by the registration form
     const populateDailyMatchSlots = (matchSlots) => {
-        loadedMatchSlots = matchSlots; // Store the full list
+        loadedMatchSlots = matchSlots;
     };
 
     // ===== TEAMMATE INPUT MANAGEMENT =====
     function addTeammateInput(index, isInitial = false) {
         const teammatesList = document.getElementById('teammatesList');
         const div = document.createElement('div');
-        div.className = 'teammate-entry flex items-center space-x-4 mb-4';
+        div.className = 'teammate-entry';
         div.innerHTML = `
-            <input type="text" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate IGN" required>
-            <input type="text" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate FFID" required>
-            ${isInitial ? '' : '<button type="button" class="remove-teammate-btn modern-btn !bg-red-500 hover:!bg-red-500 w-10 h-10 flex items-center justify-center"><i class="fas fa-times"></i></button>'}
+            <input type="text" class="teammate-ign" placeholder="Teammate IGN" required>
+            <input type="text" class="teammate-ffid" placeholder="Teammate FFID" required>
+            ${isInitial ? '' : '<button type="button" class="remove-teammate-btn"><i class="fas fa-times"></i></button>'}
         `;
         teammatesList.appendChild(div);
 
-        // Add remove button functionality for non-initial teammates
         if (!isInitial) {
             const removeBtn = div.querySelector('.remove-teammate-btn');
             removeBtn.addEventListener('click', () => {
                 div.remove();
-                // Show add button again since we removed a teammate
                 document.getElementById('addTeammateButton').classList.remove('hidden');
             });
         }
     }
 
-    // Handle teammate inputs dynamically based on match type
     const updateTeammateInputs = () => {
         const matchSelect = document.getElementById('matchSelect');
         const teammatesSection = document.getElementById('teammatesSection');
         const teammatesList = document.getElementById('teammatesList');
         const addTeammateButton = document.getElementById('addTeammateButton');
 
-        teammatesList.innerHTML = ''; // Clear existing inputs
-        addTeammateButton.onclick = null; // Clear previous handler
-        addTeammateButton.classList.remove('hidden'); // Show by default
+        teammatesList.innerHTML = '';
+        addTeammateButton.onclick = null;
+        addTeammateButton.classList.remove('hidden');
 
         const selectedMatchId = matchSelect.value;
         const selectedMatch = loadedMatchSlots.find(slot => slot.id === selectedMatchId);
 
         if (selectedMatch) {
             const matchType = selectedMatch.type.toLowerCase();
-            
-            // Reset max teammates
             currentMaxTeammates = 0;
             
             if (matchType.includes('solo')) {
@@ -937,32 +907,24 @@
             } else if (matchType.includes('duo')) {
                 currentMaxTeammates = 1;
                 teammatesSection.classList.remove('hidden');
-                // Add one initial teammate without remove button
                 addTeammateInput(1, true);
-                // Hide add button for duo since only one teammate is needed
                 addTeammateButton.classList.add('hidden');
             } else if (matchType.includes('squad') || matchType.includes('team')) {
                 currentMaxTeammates = 3;
                 teammatesSection.classList.remove('hidden');
-                // Add one initial teammate without remove button
                 addTeammateInput(1, true);
-                // Show add button for squad since we can add more teammates
                 addTeammateButton.classList.remove('hidden');
             }
 
-            // Configure add teammate button
             addTeammateButton.addEventListener('click', () => {
                 const currentTeammates = teammatesList.children.length;
                 if (currentTeammates < currentMaxTeammates) {
-                    // Add teammate with remove button
                     addTeammateInput(currentTeammates + 1);
-                    
-                    // Hide button if max reached
                     if (teammatesList.children.length >= currentMaxTeammates) {
                         addTeammateButton.classList.add('hidden');
                     }
                 } else {
-                    openModal('You have reached the maximum number of teammates for this match type.');
+                    openModal('Maximum teammates reached for this match type.');
                 }
             });
         } else {
@@ -974,7 +936,7 @@
     document.getElementById('registrationForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const registrationMessage = document.getElementById('registrationMessage');
-        registrationMessage.classList.add('hidden'); // Hide previous message
+        registrationMessage.classList.add('hidden');
 
         if (!currentUser) {
             registrationMessage.textContent = 'Please log in or register to participate.';
@@ -993,8 +955,8 @@
         const iglFFID = document.getElementById('iglFFID').value;
 
         const teammates = [];
-        const teammateIGNs = document.querySelectorAll('#teammatesList input[placeholder*="IGN"]');
-        const teammateFFIDs = document.querySelectorAll('#teammatesList input[placeholder*="FFID"]');
+        const teammateIGNs = document.querySelectorAll('.teammate-ign');
+        const teammateFFIDs = document.querySelectorAll('.teammate-ffid');
 
         for (let i = 0; i < teammateIGNs.length; i++) {
             if (teammateIGNs[i].value && teammateFFIDs[i].value) {
@@ -1003,12 +965,11 @@
                     ffid: teammateFFIDs[i].value
                 });
             } else {
-                await openModal('Please fill in all teammate IGNs and FFIDs, or remove empty fields.', 'ok');
+                await openModal('Please fill in all teammate details.', 'ok');
                 return;
             }
         }
 
-        // Validate number of teammates based on match type
         const matchTypeLower = matchType.toLowerCase();
         let requiredTeammates = 0;
         if (matchTypeLower.includes('duo')) {
@@ -1018,7 +979,7 @@
         }
 
         if (teammates.length !== requiredTeammates) {
-            await openModal(`This match requires exactly ${requiredTeammates} teammate(s). You have provided ${teammates.length}.`);
+            await openModal(`This match requires exactly ${requiredTeammates} teammate(s).`);
             return;
         }
 
@@ -1034,71 +995,52 @@
             clientTime: new Date().toISOString()
         };
 
-        document.getElementById('registerButton').disabled = true;
-        document.getElementById('registerButton').textContent = 'Registering...';
+        const registerButton = document.getElementById('registerButton');
+        registerButton.disabled = true;
+        registerButton.textContent = 'Registering...';
 
-        const response = await fetch('https://tha-tournaments.onrender.com/api/register_tournament', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(registrationData),
-        });
-        const result = await response.json();
-
-        document.getElementById('registerButton').disabled = false;
-        document.getElementById('registerButton').textContent = 'Register Now!';
-
-        if (result.success) {
-            await openModal(result.message);
+        // Simulate API call
+        setTimeout(async () => {
+            registerButton.disabled = false;
+            registerButton.textContent = 'Register Now!';
+            await openModal('Registration successful! Your team has been registered for the tournament.');
             document.getElementById('registrationForm').reset();
-            updateTeammateInputs(); // Clear teammate fields
-            // Optionally redirect to registered.html
-            window.location.href = '/registered.html'; 
-        } else {
-            await openModal(result.message || 'Registration failed. Please try again.');
-        }
+            updateTeammateInputs();
+        }, 1500);
     });
 
     // ===== DYNAMIC CONTENT DISPLAY FUNCTIONS =====
-
     const fetchAndDisplayWebsiteContent = async () => {
-    const rulesContentDiv = document.getElementById('rulesContent');
-    const contactContentDiv = document.getElementById('contactContent');
+        const rulesContentDiv = document.getElementById('rulesContent');
+        const contactContentDiv = document.getElementById('contactContent');
 
-    rulesContentDiv.innerHTML = '<p class="text-center text-gray-600">Loading rules...</p>';
-    contactContentDiv.innerHTML = '<p class="text-center text-gray-600">Loading contact information...</p>';
+        // Mock rules content
+        const mockRules = `
+        <h3 class="text-xl font-bold text-indigo-300 mb-4">Tournament Rules</h3>
+        <ul class="list-disc pl-6 space-y-2">
+            <li>All players must have a valid Free Fire account</li>
+            <li>No cheating or use of third-party tools is allowed</li>
+            <li>Players must join the match lobby 15 minutes before start time</li>
+            <li>Team names must be appropriate and not offensive</li>
+            <li>Decisions by tournament administrators are final</li>
+            <li>Entry fees are non-refundable once registration is confirmed</li>
+        </ul>
+        `;
 
-    try {
-        const response = await fetch('https://tha-tournaments.onrender.com/api/configs/website_content');
+        // Mock contact content
+        const mockContact = `
+        <h3 class="text-xl font-bold text-indigo-300 mb-4">Contact & Support</h3>
+        <div class="space-y-3">
+            <p><i class="fas fa-envelope mr-3 text-blue-400"></i>Email: support@thatournaments.com</p>
+            <p><i class="fab fa-whatsapp mr-3 text-green-400"></i>WhatsApp: +91 98765 43210</p>
+            <p><i class="fab fa-discord mr-3 text-indigo-400"></i>Discord: discord.gg/thatournaments</p>
+            <p><i class="fas fa-headset mr-3 text-amber-400"></i>Support Hours: 10 AM - 10 PM IST</p>
+        </div>
+        `;
 
-        if (!response.ok) {
-            const text = await response.text();
-            console.error("Non-JSON Response:", text);
-            throw new Error(`Server returned ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success && result.content) {
-            rulesContentDiv.innerHTML = result.content.rules
-                ? result.content.rules.replace(/\n/g, '<br>')
-                : 'No rules yet.';
-            contactContentDiv.innerHTML = result.content.contact
-                ? result.content.contact.replace(/\n/g, '<br>')
-                : 'No contact info yet.';
-        } else {
-            rulesContentDiv.innerHTML = 'Failed to load rules.';
-            contactContentDiv.innerHTML = 'Failed to load contact.';
-            await openModal(result.message || "No content returned.");
-        }
-    } catch (error) {
-        console.error('Error fetching website content:', error);
-        rulesContentDiv.innerHTML = 'Error loading rules.';
-        contactContentDiv.innerHTML = 'Error loading contact.';
-        await openModal("Backend error: " + error.message);
-    }
-};
+        rulesContentDiv.innerHTML = mockRules;
+        contactContentDiv.innerHTML = mockContact;
+    };
 
     const fetchAndDisplayScheduleItems = async () => {
         const scheduleTableBody = document.getElementById('scheduleTableBody');
@@ -1109,35 +1051,30 @@
         loadingScheduleMessage.classList.remove('hidden');
         noScheduleMessage.classList.add('hidden');
 
-        try {
-            const response = await fetch('https://tha-tournaments.onrender.com/api/schedule_items');
-            const result = await response.json();
+        // Mock schedule data
+        const mockSchedule = [
+            { time: "12:00 PM", description: "Registration Opens", notes: "All match types" },
+            { time: "02:00 PM", description: "Solo Match Briefing", notes: "Mandatory for participants" },
+            { time: "03:00 PM", description: "Solo Match Starts", notes: "50 players" },
+            { time: "04:30 PM", description: "Duo Match Briefing", notes: "Team check-in" },
+            { time: "05:30 PM", description: "Duo Match Starts", notes: "25 teams" },
+            { time: "07:00 PM", description: "Squad Match Briefing", notes: "Team check-in" },
+            { time: "08:00 PM", description: "Squad Match Starts", notes: "12 teams" },
+            { time: "10:00 PM", description: "Prize Distribution", notes: "All winners" }
+        ];
 
-            loadingScheduleMessage.classList.add('hidden');
+        loadingScheduleMessage.classList.add('hidden');
 
-            if (result.success && result.scheduleItems.length > 0) {
-                result.scheduleItems.sort((a, b) => a.order - b.order); // Sort by order
-                result.scheduleItems.forEach(item => {
-                    const row = `
-                        <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
-                            <td class="py-4 px-6 text-left font-bold text-gray-800">${item.time || 'N/A'}</td>
-                            <td class="py-4 px-6 text-left">${item.description || 'N/A'}</td>
-                            <td class="py-4 px-6 text-left text-gray-600">${item.notes || 'N/A'}</td>
-                        </tr>
-                    `;
-                    scheduleTableBody.insertAdjacentHTML('beforeend', row);
-                });
-            } else {
-                noScheduleMessage.classList.remove('hidden');
-                if (!result.success) {
-                    await openModal(result.message || 'Failed to load schedule items.');
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching schedule items:', error);
-            scheduleTableBody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-red-500">Error loading schedule.</td></tr>`;
-            await openModal(`Failed to connect to backend for schedule: ${error.message}`);
-        }
+        mockSchedule.forEach(item => {
+            const row = `
+                <tr class="border-b border-slate-700 hover:bg-slate-800 transition-colors">
+                    <td class="py-4 px-6 font-bold text-amber-300">${item.time}</td>
+                    <td class="py-4 px-6">${item.description}</td>
+                    <td class="py-4 px-6 text-gray-400">${item.notes}</td>
+                </tr>
+            `;
+            scheduleTableBody.insertAdjacentHTML('beforeend', row);
+        });
     };
 
     const fetchAndDisplayPrizeItems = async () => {
@@ -1149,122 +1086,122 @@
         loadingPrizeMessage.classList.remove('hidden');
         noPrizeMessage.classList.add('hidden');
 
-        try {
-            const response = await fetch('https://tha-tournaments.onrender.com/api/prize_items');
-            const result = await response.json();
-
-            loadingPrizeMessage.classList.add('hidden');
-
-            if (result.success && result.prizeItems.length > 0) {
-                result.prizeItems.sort((a, b) => a.order - b.order); // Sort by order
-                result.prizeItems.forEach(item => {
-                    const row = `
-                        <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
-                            <td class="py-4 px-6 text-left">${item.matchType || 'N/A'}</td>
-                            <td class="py-4 px-6 text-left">${item.entryFee || 'N/A'}</td>
-                            <td class="py-4 px-6 text-left">${item.totalPlayersExample || 'N/A'}</td>
-                            <td class="py-4 px-6 text-left">${item.totalFee || 'N/A'}</td>
-                            <td class="py-4 px-6 text-left">${item.prizePool || 'N/A'}</td>
-                            <td class="py-4 px-6 text-left">${item.prizeDistribution || 'N/A'}</td>
-                        </tr>
-                    `;
-                    prizeTableBody.insertAdjacentHTML('beforeend', row);
-                });
-            } else {
-                noPrizeMessage.classList.remove('hidden');
-                if (!result.success) {
-                    await openModal(result.message || 'Failed to load prize items.');
-                }
+        // Mock prize data
+        const mockPrizes = [
+            { 
+                matchType: "Solo Match", 
+                entryFee: "₹25", 
+                totalPlayersExample: "50 players", 
+                totalFee: "₹1,250", 
+                prizePool: "₹1,250", 
+                prizeDistribution: "1st: ₹500, 2nd: ₹300, 3rd: ₹200, 4th-10th: ₹35" 
+            },
+            { 
+                matchType: "Duo Match", 
+                entryFee: "₹45 per team", 
+                totalPlayersExample: "25 teams", 
+                totalFee: "₹1,125", 
+                prizePool: "₹1,125", 
+                prizeDistribution: "1st: ₹500, 2nd: ₹300, 3rd: ₹200, 4th-5th: ₹62.50" 
+            },
+            { 
+                matchType: "Squad Match", 
+                entryFee: "₹180 per team", 
+                totalPlayersExample: "12 teams", 
+                totalFee: "₹2,160", 
+                prizePool: "₹2,160", 
+                prizeDistribution: "1st: ₹1,000, 2nd: ₹600, 3rd: ₹400, 4th: ₹160" 
             }
-        } catch (error) {
-            console.error('Error fetching prize items:', error);
-            prizeTableBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-red-500">Error loading prize information.</td></tr>`;
-            await openModal(`Failed to connect to backend for prize items: ${error.message}`);
-        }
+        ];
+
+        loadingPrizeMessage.classList.add('hidden');
+
+        mockPrizes.forEach(item => {
+            const row = `
+                <tr class="border-b border-slate-700 hover:bg-slate-800">
+                    <td class="py-4 px-6">${item.matchType}</td>
+                    <td class="py-4 px-6">${item.entryFee}</td>
+                    <td class="py-4 px-6">${item.totalPlayersExample}</td>
+                    <td class="py-4 px-6">${item.totalFee}</td>
+                    <td class="py-4 px-6">${item.prizePool}</td>
+                    <td class="py-4 px-6">${item.prizeDistribution}</td>
+                </tr>
+            `;
+            prizeTableBody.insertAdjacentHTML('beforeend', row);
+        });
     };
 
     // ===== AUTH STATE HANDLER =====
-onAuthStateChanged(auth, (user) => {
-    const loadingScreen = document.getElementById('loadingScreen');
-    const mainContent = document.getElementById('mainContent');
-    const authButton = document.getElementById('authButton');
-    const myRegistrationsButton = document.getElementById('myRegistrationsButton');
-    const logoutButton = document.getElementById('logoutButton');
-    const loggedInEmailSpan = document.getElementById('loggedInEmail');
-    const loggedInUserInfo = document.getElementById('loggedInUserInfo');
-    const regEmail = document.getElementById('regEmail');
-    const regUserId = document.getElementById('regUserId');
-    const loginPrompt = document.getElementById('loginPrompt');
-    const registerButton = document.getElementById('registerButton');
-    
-    // Always show content after auth check
-    if (loadingScreen) loadingScreen.classList.add('hidden');
-    if (mainContent) mainContent.classList.remove('hidden');
-    
-    currentUser = user;
-    if (user) {
-        // ✅ Show logout and registrations buttons
-        if (logoutButton) logoutButton.classList.remove('hidden');
-        if (myRegistrationsButton) myRegistrationsButton.classList.remove('hidden');
-    } else {
-        // ❌ Hide if not logged in
-        if (logoutButton) logoutButton.classList.add('hidden');
-        if (myRegistrationsButton) myRegistrationsButton.classList.add('hidden');
-    }
-    if (user) {
-        if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email;
-        if (logoutButton) logoutButton.classList.remove('hidden');
+    onAuthStateChanged(auth, (user) => {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainContent = document.getElementById('mainContent');
+        const authButton = document.getElementById('authButton');
+        const myRegistrationsButton = document.getElementById('myRegistrationsButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const loggedInEmailSpan = document.getElementById('loggedInEmail');
+        const loggedInUserInfo = document.getElementById('loggedInUserInfo');
+        const regEmail = document.getElementById('regEmail');
+        const regUserId = document.getElementById('regUserId');
+        const loginPrompt = document.getElementById('loginPrompt');
+        const registerButton = document.getElementById('registerButton');
         
-        // Update the registration form with logged-in user info
-        if (loggedInUserInfo) loggedInUserInfo.classList.remove('hidden');
-        if (regEmail) regEmail.textContent = user.email;
-        if (regUserId) regUserId.textContent = user.uid;
-        if (loginPrompt) loginPrompt.classList.add('hidden');
-        if (registerButton) registerButton.disabled = false;
+        // Show content after auth check
+        setTimeout(() => {
+            if (loadingScreen) loadingScreen.classList.add('hidden');
+            if (mainContent) mainContent.classList.remove('hidden');
+        }, 1500);
         
-        // Set logout handler
-        if (logoutButton) {
-            logoutButton.onclick = async () => {
-                try {
-                    await signOut(auth);
-                    window.location.href = '/';
-                } catch (error) {
-                    console.error("Logout error:", error);
-                    await openModal("Logout failed");
-                }
-            };
+        currentUser = user;
+        if (user) {
+            if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email || "User";
+            if (logoutButton) logoutButton.classList.remove('hidden');
+            if (myRegistrationsButton) myRegistrationsButton.classList.remove('hidden');
+            
+            if (loggedInUserInfo) loggedInUserInfo.classList.remove('hidden');
+            if (regEmail) regEmail.textContent = user.email || "User";
+            if (regUserId) regUserId.textContent = user.uid.substring(0, 8) + "...";
+            if (loginPrompt) loginPrompt.classList.add('hidden');
+            if (registerButton) registerButton.disabled = false;
+        } else {
+            if (loggedInEmailSpan) loggedInEmailSpan.textContent = 'Guest';
+            if (logoutButton) logoutButton.classList.add('hidden');
+            if (myRegistrationsButton) myRegistrationsButton.classList.add('hidden');
+            
+            if (loggedInUserInfo) loggedInUserInfo.classList.add('hidden');
+            if (loginPrompt) loginPrompt.classList.remove('hidden');
+            if (registerButton) registerButton.disabled = true;
         }
-        
-    } else {
-        if (loggedInEmailSpan) loggedInEmailSpan.textContent = 'Guest';
-        if (logoutButton) logoutButton.classList.add('hidden');
-        
-        // Update registration form to prompt login
-        if (loggedInUserInfo) loggedInUserInfo.classList.add('hidden');
-        if (loginPrompt) loginPrompt.classList.remove('hidden');
-        if (registerButton) registerButton.disabled = true;
-        if (authButton) authButton.onclick = showLoginRegisterModal;
-    }
-});
+    });
 
     // ===== EVENT LISTENERS AND INITIAL LOAD =====
     document.addEventListener('DOMContentLoaded', () => {
+        // Set up event listeners
+        document.getElementById('authButton').addEventListener('click', showLoginRegisterModal);
         document.getElementById('matchSelect').addEventListener('change', updateTeammateInputs);
+        
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.reload();
+            } catch (error) {
+                console.error("Logout error:", error);
+                openModal("Logout failed. Please try again.");
+            }
+        });
+        
+        document.getElementById('walletButton').addEventListener('click', () => {
+            openModal("Wallet functionality is coming soon! You'll be able to manage your tournament funds here.", 'ok');
+        });
 
         // Initial fetches for dynamic content
-        fetchAndDisplayMatchSlots(); // This also populates matchSelect and `loadedMatchSlots`
+        fetchAndDisplayMatchSlots();
         fetchAndDisplayWebsiteContent();
         fetchAndDisplayScheduleItems();
         fetchAndDisplayPrizeItems();
         
         // Clear timers when page is unloaded
         window.addEventListener('beforeunload', clearAllTimers);
-
-        // Add this in the script section
-document.getElementById('walletButton')?.addEventListener('click', () => {
-    window.location.href = '/wallet.html';
-    
     });
-</script>
+    </script>
 </body>
 </html>
