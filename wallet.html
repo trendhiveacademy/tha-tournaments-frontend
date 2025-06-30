@@ -399,7 +399,26 @@
             document.getElementById('loadingScreen').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
         }
+        // new lines
+        // Update wallet balance on page load
+async function updateWalletBalance() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/wallet?userId=${currentUser.uid}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('walletBalance').textContent = result.balance.toFixed(2);
+        }
+    } catch (error) {
+        console.error('Failed to update wallet balance:', error);
+    }
+}
 
+// Call on page load and after transactions
+updateWalletBalance();
+
+
+        
         // Auth state listener
         onAuthStateChanged(auth, (user) => {
             const loadingScreen = document.getElementById('loadingScreen');
