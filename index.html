@@ -768,7 +768,57 @@
             authError.textContent = errorMessage;
         }
     };
+    // Add this to the registration form handler
+        // Add this to the registration form handler
+document.getElementById('matchSelect').addEventListener('change', async function() {
+    const matchId = this.value;
+    const matchOption = this.options[this.selectedIndex];
+    
+    if (matchId) {
+        // Fetch match details
+        const response = await fetch(`${API_BASE_URL}/api/match_slots`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const match = result.matchSlots.find(m => m.id === matchId);
+            if (match) {
+                document.getElementById('entryFeeAmount').textContent = match.entry.toFixed(2);
+            }
+        }
+    }
+});
+// Modify form submission
+document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Get payment method
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const entryFee = parseFloat(document.getElementById('entryFeeAmount').textContent);
+    
+    // Wallet balance check
+    if (paymentMethod === 'wallet') {
+        const walletResponse = await fetch(`${API_BASE_URL}/api/wallet?userId=${currentUser.uid}`);
+        const walletData = await walletResponse.json();
+        
+        if (!walletData.success || walletData.balance < entryFee) {
+            await openModal('Insufficient wallet balance. Please add funds or choose another payment method.');
+            return;
+        }
+    }
+    
+    // Proceed with registration
+    const registrationData = {
+        // ... existing data ...,
+        paymentMethod: paymentMethod
+    };
+    
+    // ... submit registration ...
+});
+        
+        
 
+
+        
     // ===== CORE TOURNAMENT FUNCTIONS =====
 
     // Helper to check if a match is open for registration (not completed and not closed)
