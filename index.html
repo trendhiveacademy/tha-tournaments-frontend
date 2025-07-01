@@ -536,7 +536,7 @@
 
     <div id="customModal" class="custom-modal">
         <div class="custom-modal-content w-full max-w-md mx-auto">
-            <span class="custom-modal-close-button" onclick="closeModal()">&times;</span>
+            <span class="custom-modal-close-button" onclick="window.closeModal()">&times;</span>
             <div id="modalContent" class="py-6 px-4 sm:px-6">
                 <!-- Content will be dynamically inserted here -->
                 <p id="modalMessage" class="text-xl font-semibold text-gray-700"></p>
@@ -700,13 +700,13 @@
                 modalOkBtn.classList.remove('bg-red-500', 'bg-gray-500'); // Ensure correct color
                 modalOkBtn.classList.add('bg-green-500', 'hover:bg-green-600');
                 modalOkBtn.textContent = 'OK';
-                modalOkBtn.onclick = () => { closeModal(); resolve(true); };
+                modalOkBtn.onclick = () => { window.closeModal(); resolve(true); };
             } else if (type === 'error') {
                 modalOkBtn.classList.remove('hidden');
                 modalOkBtn.classList.remove('bg-green-500', 'bg-gray-500'); // Ensure correct color
                 modalOkBtn.classList.add('bg-red-500', 'hover:bg-red-600');
                 modalOkBtn.textContent = 'OK';
-                modalOkBtn.onclick = () => { closeModal(); resolve(true); };
+                modalOkBtn.onclick = () => { window.closeModal(); resolve(true); };
             } else if (type === 'confirm') { // For confirmation dialogs
                 modalConfirmBtn.classList.remove('hidden');
                 modalCancelBtn.classList.remove('hidden');
@@ -715,14 +715,14 @@
                 modalConfirmBtn.textContent = 'Confirm';
                 modalCancelBtn.textContent = 'Cancel';
 
-                modalConfirmBtn.onclick = () => { closeModal(); resolve(true); };
-                modalCancelBtn.onclick = () => { closeModal(); resolve(false); };
+                modalConfirmBtn.onclick = () => { window.closeModal(); resolve(true); };
+                modalCancelBtn.onclick = () => { window.closeModal(); resolve(false); };
             } else { // 'alert' or default
                 modalOkBtn.classList.remove('hidden');
                 modalOkBtn.classList.remove('bg-green-500', 'bg-red-500'); // Ensure correct color
                 modalOkBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
                 modalOkBtn.textContent = 'OK';
-                modalOkBtn.onclick = () => { closeModal(); resolve(true); };
+                modalOkBtn.onclick = () => { window.closeModal(); resolve(true); };
             }
 
             modal.classList.add('flex'); // Show the modal
@@ -734,6 +734,10 @@
         return openModal(message, 'confirm');
     }
 
+    // Attach to window for global access
+    window.openModal = openModal;
+    window.openConfirmModal = openConfirmModal;
+
     window.closeModal = () => { // Keep window.closeModal for inline onclick and general use
         const customModalEl = document.getElementById('customModal');
         if (customModalEl) customModalEl.classList.remove('flex');
@@ -742,7 +746,8 @@
     };
 
     // ===== AUTH MODALS (Updated to use new customModal structure) =====
-    const showLoginRegisterModal = () => {
+    // Attach to window for global access
+    window.showLoginRegisterModal = () => {
         const modalContentEl = document.getElementById('modalContent');
         modalContentEl.innerHTML = `
             <h3 class="text-2xl font-bold text-blue-500 mb-6">Login / Register</h3>
@@ -775,10 +780,10 @@
 
         const newAuthFormHandler = (e) => {
             e.preventDefault();
-            handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'login');
+            window.handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'login');
         };
         const newRegisterNewBtnHandler = () => {
-            handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'register');
+            window.handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'register');
         };
 
         // Remove existing listeners if they were attached
@@ -792,19 +797,20 @@
         registerNewBtn._clickHandler = newRegisterNewBtnHandler;
     };
 
-    const handleAuth = async (email, password, type) => {
+    // Attach to window for global access
+    window.handleAuth = async (email, password, type) => {
         const authError = document.getElementById('authError');
         authError.textContent = ''; // Clear previous errors
 
         try {
             if (type === 'login') {
                 await signInWithEmailAndPassword(auth, email, password);
-                await openModal('Login successful!', 'success');
-                closeModal(); // Close the auth modal
+                await window.openModal('Login successful!', 'success');
+                window.closeModal(); // Close the auth modal
             } else { // type === 'register'
                 await createUserWithEmailAndPassword(auth, email, password);
-                await openModal('Registration successful! You are now logged in.', 'success');
-                closeModal(); // Close the auth modal
+                await window.openModal('Registration successful! You are now logged in.', 'success');
+                window.closeModal(); // Close the auth modal
             }
         } catch (error) {
             let errorMessage = 'An unknown error occurred.';
@@ -950,12 +956,12 @@
             } else {
                 noMatchesMessage.classList.remove('hidden');
                 if (!result.success) {
-                    await openModal(result.message || 'Failed to load match slots.', 'error');
+                    await window.openModal(result.message || 'Failed to load match slots.', 'error');
                 }
             }
         } catch (error) {
             console.error('Error fetching match slots:', error);
-            await openModal('Failed to load upcoming matches. Please try again later.', 'error');
+            await window.openModal('Failed to load upcoming matches. Please try again later.', 'error');
             document.getElementById('matchesContainer').innerHTML = `<p class="text-center text-red-500 md:col-span-3">Error loading matches.</p>`;
             matchSelect.innerHTML = '<option value="">-- Error Loading Matches --</option>';
             loadedMatchSlots = [];
@@ -964,27 +970,8 @@
 
 
     // ===== TEAMMATE INPUT MANAGEMENT =====
-    function addTeammateInput(index) {
-        const teammatesList = document.getElementById('teammatesList');
-        const div = document.createElement('div');
-        div.className = 'teammate-entry flex items-center space-x-4 mb-4';
-        div.innerHTML = `
-            <input type="text" id="memberIGN${index}" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate ${index} IGN" required>
-            <input type="text" id="memberFFID${index}" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate ${index} FFID" required>
-            <button type="button" class="remove-teammate-btn modern-btn !bg-red-500 hover:!bg-red-500 w-10 h-10 flex items-center justify-center"><i class="fas fa-times"></i></button>
-        `;
-        teammatesList.appendChild(div);
-
-        const removeBtn = div.querySelector('.remove-teammate-btn');
-        removeBtn.addEventListener('click', () => {
-            div.remove();
-            // Show add button again since we removed a teammate
-            document.getElementById('addTeammateButton').classList.remove('hidden');
-        });
-    }
-
-    // Handle teammate inputs dynamically based on match type
-    const updateTeammateInputs = () => {
+    // Attach to window for global access
+    window.updateTeammateInputs = () => {
         const matchSelect = document.getElementById('matchSelect');
         const teammatesSection = document.getElementById('teammatesSection');
         const teammatesList = document.getElementById('teammatesList');
@@ -1036,7 +1023,7 @@
                         addTeammateButton.classList.add('hidden');
                     }
                 } else {
-                    openModal('You have reached the maximum number of teammates for this match type.', 'alert');
+                    window.openModal('You have reached the maximum number of teammates for this match type.', 'alert');
                 }
             });
         } else {
@@ -1045,7 +1032,8 @@
     };
 
     // Submit Registration (Updated)
-    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    // Attach to window for global access
+    window.registerForMatch = async (e) => {
         e.preventDefault();
         const registrationMessage = document.getElementById('registrationMessage');
         registrationMessage.classList.add('hidden'); // Hide previous message
@@ -1053,7 +1041,7 @@
         if (!currentUser) {
             registrationMessage.textContent = 'Please log in or register to participate.';
             registrationMessage.classList.remove('hidden');
-            showLoginRegisterModal();
+            window.showLoginRegisterModal();
             return;
         }
 
@@ -1077,7 +1065,7 @@
                     ffid: teammateFFIDs[i].value
                 });
             } else {
-                await openModal('Please fill in all teammate IGNs and FFIDs, or remove empty fields.', 'error');
+                await window.openModal('Please fill in all teammate IGNs and FFIDs, or remove empty fields.', 'error');
                 return;
             }
         }
@@ -1085,21 +1073,21 @@
         // Validate number of teammates based on match type
         const selectedMatchSlot = loadedMatchSlots.find(slot => slot.id === selectedMatchId);
         if (!selectedMatchSlot) {
-            await openModal('Selected match slot not found. Please try again.', 'error');
+            await window.openModal('Selected match slot not found. Please try again.', 'error');
             return;
         }
         const maxPlayers = selectedMatchSlot.max_players || 1;
         const requiredTeammates = maxPlayers - 1; // Leader is 1 player, rest are teammates
 
         if (teammates.length !== requiredTeammates) {
-            await openModal(`This match requires exactly ${requiredTeammates} teammate(s). You have provided ${teammates.length}.`, 'error');
+            await window.openModal(`This match requires exactly ${requiredTeammates} teammate(s). You have provided ${teammates.length}.`, 'error');
             return;
         }
 
         const registrationFee = selectedMatchSlot.entry || 0; // Get entry fee
 
         // Display confirmation dialog with fee
-        const confirmRegistration = await openConfirmModal(`Confirm registration for "${selectedMatchSlot.type}"?` + 
+        const confirmRegistration = await window.openConfirmModal(`Confirm registration for "${selectedMatchSlot.type}"?` + 
                                                          (registrationFee > 0 ? `\nEntry Fee: ₹${registrationFee.toFixed(2)}. This will be deducted from your wallet.` : ''));
         if (!confirmRegistration) {
             return; // User cancelled
@@ -1132,28 +1120,28 @@
             document.getElementById('registerButton').textContent = 'Register Now! ';
 
             if (result.success) {
-                await openModal(result.message, 'success');
+                await window.openModal(result.message, 'success');
                 document.getElementById('registrationForm').reset();
-                updateTeammateInputs(); // Reset team inputs
+                window.updateTeammateInputs(); // Reset team inputs
                 fetchAndDisplayMatchSlots(); // Refresh match slots to update counts
                 // Optionally, update wallet balance on index page if displayed or redirect to wallet
             } else {
                 // Handle insufficient funds specifically
                 if (result.message.includes("Insufficient funds")) {
-                    await openModal(`${result.message} Please add funds to your wallet. You will be redirected to the Wallet page.`, 'error').then(() => {
+                    await window.openModal(`${result.message} Please add funds to your wallet. You will be redirected to the Wallet page.`, 'error').then(() => {
                         window.location.href = '/wallet.html'; // Redirect to wallet page
                     });
                 } else {
-                    await openModal(`Registration failed: ${result.message}`, 'error');
+                    await window.openModal(`Registration failed: ${result.message}`, 'error');
                 }
             }
         } catch (error) {
             console.error('Registration error:', error);
-            await openModal('An error occurred during registration. Please try again later.', 'error');
+            await window.openModal('An error occurred during registration. Please try again later.', 'error');
         } finally {
             document.getElementById('loadingOverlay').classList.add('hidden'); // Hide loading
         }
-    });
+    };
 
     // ===== DYNAMIC CONTENT DISPLAY FUNCTIONS =====
 
@@ -1185,13 +1173,13 @@
         } else {
             rulesContentDiv.innerHTML = 'Failed to load rules.';
             contactContentDiv.innerHTML = 'Failed to load contact.';
-            await openModal(result.message || "No content returned.", 'error');
+            await window.openModal(result.message || "No content returned.", 'error');
         }
     } catch (error) {
         console.error('Error fetching website content:', error);
         rulesContentDiv.innerHTML = 'Error loading rules.';
         contactContentDiv.innerHTML = 'Error loading contact.';
-        await openModal("Backend error: " + error.message, 'error');
+        await window.openModal("Backend error: " + error.message, 'error');
     }
 };
 
@@ -1225,13 +1213,13 @@
             } else {
                 noScheduleMessage.classList.remove('hidden');
                 if (!result.success) {
-                    await openModal(result.message || 'Failed to load schedule items.', 'error');
+                    await window.openModal(result.message || 'Failed to load schedule items.', 'error');
                 }
             }
         } catch (error) {
             console.error('Error fetching schedule items:', error);
             scheduleTableBody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-red-500">Error loading schedule.</td></tr>`;
-            await openModal(`Failed to connect to backend for schedule: ${error.message}`, 'error');
+            await window.openModal(`Failed to connect to backend for schedule: ${error.message}`, 'error');
         }
     };
 
@@ -1268,13 +1256,13 @@
             } else {
                 noPrizeMessage.classList.remove('hidden');
                 if (!result.success) {
-                    await openModal(result.message || 'Failed to load prize items.', 'error');
+                    await window.openModal(result.message || 'Failed to load prize items.', 'error');
                 }
             }
         } catch (error) {
             console.error('Error fetching prize items:', error);
             prizeTableBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-red-500">Error loading prize information.</td></tr>`;
-            await openModal(`Failed to connect to backend for prize items: ${error.message}`, 'error');
+            await window.openModal(`Failed to connect to backend for prize items: ${error.message}`, 'error');
         }
     };
 
@@ -1324,7 +1312,7 @@
                         window.location.href = '/';
                     } catch (error) {
                         console.error("Logout error:", error);
-                        await openModal("Logout failed", 'error');
+                        await window.openModal("Logout failed", 'error');
                     }
                 };
             }
@@ -1349,7 +1337,7 @@
             if (loginPrompt) loginPrompt.classList.remove('hidden');
             if (registerButton) registerButton.disabled = true;
             // Ensure authButton click handler is set for logged out state
-            if (authButton) authButton.onclick = showLoginRegisterModal; 
+            if (authButton) authButton.onclick = window.showLoginRegisterModal; 
         }
     });
 
@@ -1359,7 +1347,7 @@
         // No need to attach them here if showLoginRegisterModal creates and attaches them.
 
         // Navigation buttons - use optional chaining for robustness
-        document.getElementById('authButton')?.addEventListener('click', showLoginRegisterModal);
+        document.getElementById('authButton')?.addEventListener('click', window.showLoginRegisterModal);
         document.getElementById('myRegistrationsButton')?.addEventListener('click', () => {
             window.location.href = '/registered.html';
         });
@@ -1371,8 +1359,8 @@
         });
 
         // Registration form listener
-        document.getElementById('registrationForm')?.addEventListener('submit', registerForMatch);
-        document.getElementById('matchSelect')?.addEventListener('change', updateTeammateInputs);
+        document.getElementById('registrationForm')?.addEventListener('submit', window.registerForMatch);
+        document.getElementById('matchSelect')?.addEventListener('change', window.updateTeammateInputs);
 
         // Initial fetches for dynamic content
         fetchAndDisplayMatchSlots(); // This also populates matchSelect and `loadedMatchSlots`
