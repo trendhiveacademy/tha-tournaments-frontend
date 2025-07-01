@@ -362,13 +362,8 @@
         <source src="bg2.mp4" type="video/mp4">
     </video>
     
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[1001] hidden">
-        <div class="flex flex-col items-center">
-            <div class="loading-animation"></div>
-            <p class="mt-4 text-xl font-semibold text-white">Processing...</p>
-        </div>
-    </div>
+    <!-- REMOVED the overlay div -->
+   
 
     <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-100 z-50">
         <div class="flex flex-col items-center">
@@ -445,8 +440,6 @@
                     <select id="matchSelect" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-300" required>
                         <option value="">-- Loading Matches --</option>
                     </select>
-                    <!-- Added Entry Fee display -->
-                    <p class="text-sm text-gray-600 mt-2">Entry Fee: <span id="matchEntryFee" class="font-semibold text-blue-700">₹0.00</span></p>
                 </div>
                 <div>
                     <label for="iglIGN" class="block text-gray-700 text-base font-bold mb-2">Your IGN (In-Game Name):</label>
@@ -541,19 +534,17 @@
 
     <div id="customModal" class="custom-modal">
         <div class="custom-modal-content w-full max-w-md mx-auto">
-            <span class="custom-modal-close-button" onclick="window.closeModal()">&times;</span>
+            <span class="custom-modal-close-button" onclick="closeModal()">&times;</span>
             <div id="modalContent" class="py-6 px-4 sm:px-6">
-                <!-- Content will be dynamically inserted here -->
-                <p id="modalMessage" class="text-xl font-semibold text-gray-700"></p>
-            </div>
+                </div>
             <div id="modalButtons" class="mt-8 flex justify-center space-x-4">
                 <button id="modalConfirmBtn" class="hidden btn-primary-modal">
                     Confirm
                 </button>
-                <button id="modalCancelBtn" class="hidden btn-secondary-modal">
+                <button id="modalCancelBtn" class="hidden btn-secondary-modal" onclick="closeModal()">
                     Cancel
                 </button>
-                <button id="modalOkBtn" class="btn-primary-modal">
+                <button id="modalOkBtn" class="btn-primary-modal" onclick="closeModal()">
                     OK
                 </button>
             </div>
@@ -578,56 +569,12 @@
     const auth = getAuth(app);
     let currentUser = null;
     let currentMaxTeammates = 0; // To track max teammates based on match type
-    let loadedMatchSlots = []; // Global variable to store fetched match slots
-
-    const API_BASE_URL = "https://tha-tournaments.onrender.com"; // Explicitly set backend URL
     
-    // New global object to store countdown intervals for match cards
-    const countdownTimers = {};
-    console.log('countdownTimers initialized:', countdownTimers); // Debugging line
-
-    // Function to update countdown display for a specific match
-    function updateCountdown(matchId, targetTimeMillis) {
-        const now = new Date().getTime();
-        const distance = targetTimeMillis - now;
-        const timerElement = document.getElementById(`timer-${matchId}`);
-
-        if (!timerElement) {
-            // If element is no longer in DOM, clear its interval
-            if (countdownTimers[matchId]) {
-                clearInterval(countdownTimers[matchId]);
-                delete countdownTimers[matchId];
-            }
-            return;
-        }
-
-        if (distance < 0) {
-            timerElement.innerHTML = `<span class="text-red-500">Registration Closed</span>`;
-            clearInterval(countdownTimers[matchId]);
-            delete countdownTimers[matchId];
-            return;
-        }
-
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        if (hours === 0 && minutes < 30) {
-            timerElement.innerHTML = `
-                <span class="text-orange-500 font-bold">
-                    ${formatTimeUnit(minutes)}m ${formatTimeUnit(seconds)}s
-                </span>
-            `;
-        } else {
-            timerElement.innerHTML = `
-                <span class="text-green-600">
-                    ${formatTimeUnit(hours)}h ${formatTimeUnit(minutes)}m
-                </span>
-            `;
-        }
-    }
-
-    // Function to calculate time until match starts (kept for `isMatchOpenForRegistration` logic)
+    // ===== TIMER FUNCTIONS =====
+    // Global array to store timer references
+    let activeTimers = [];
+    
+    // Function to calculate time until match starts
     function getTimeUntilMatch(matchTimeStr) {
         const now = new Date();
         const [hours, minutes] = matchTimeStr.split(':').map(Number);
@@ -662,103 +609,97 @@
         return value.toString().padStart(2, '0');
     }
     
-    // Function to clear all timers when page unloads
-    function clearAllTimers() {
-        // Clear countdownTimers
-        for (const matchId in countdownTimers) {
-            clearInterval(countdownTimers[matchId]);
-            delete countdownTimers[matchId];
-        }
-    }
-    
-    // ===== MODAL FUNCTIONS (Updated to handle dynamic content and multiple buttons) =====
-    // This function is now more flexible to handle both simple alerts and confirm dialogs.
-    async function openModal(message, type = 'alert') {
-        return new Promise((resolve) => {
-            const modal = document.getElementById('customModal');
-            let modalMessageEl = document.getElementById('modalMessage');
+    // Function to start timer for a match card
+    function startMatchTimer(matchId, matchTime) {
+        const timerElement = document.getElementById(`timer-${matchId}`);
+        if (!timerElement) return;
+        
+        const timerInterval = setInterval(() => {
+            const timeData = getTimeUntilMatch(matchTime);
             
-            // If modalMessageEl doesn't exist (e.g., first call), create it inside modalContent
-            if (!modalMessageEl) {
-                const modalContentDiv = document.getElementById('modalContent');
-                modalMessageEl = document.createElement('p');
-                modalMessageEl.id = 'modalMessage';
-                modalMessageEl.className = 'text-xl font-semibold text-gray-700';
-                modalContentDiv.appendChild(modalMessageEl);
+            // Check if match has started
+            if (timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0) {
+                timerElement.innerHTML = `<span class="text-red-500">Match Started!</span>`;
+                clearInterval(timerInterval);
+                return;
             }
-
-            const modalConfirmBtn = document.getElementById('modalConfirmBtn');
-            const modalCancelBtn = document.getElementById('modalCancelBtn');
-            const modalOkBtn = document.getElementById('modalOkBtn');
-
-            modalMessageEl.textContent = message;
             
-            // Reset button visibility and event listeners
-            modalConfirmBtn.classList.add('hidden');
-            modalCancelBtn.classList.add('hidden');
-            modalOkBtn.classList.add('hidden');
-
-            // Clear previous event listeners to prevent duplicates
-            modalConfirmBtn.onclick = null;
-            modalCancelBtn.onclick = null;
-            modalOkBtn.onclick = null;
-
-            // Configure buttons based on modal type
-            if (type === 'success') {
-                modalOkBtn.classList.remove('hidden');
-                modalOkBtn.classList.remove('bg-red-500', 'bg-gray-500'); // Ensure correct color
-                modalOkBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-                modalOkBtn.textContent = 'OK';
-                modalOkBtn.onclick = () => { window.closeModal(); resolve(true); };
-            } else if (type === 'error') {
-                modalOkBtn.classList.remove('hidden');
-                modalOkBtn.classList.remove('bg-green-500', 'bg-gray-500'); // Ensure correct color
-                modalOkBtn.classList.add('bg-red-500', 'hover:bg-red-600');
-                modalOkBtn.textContent = 'OK';
-                modalOkBtn.onclick = () => { window.closeModal(); resolve(true); };
-            } else if (type === 'confirm') { // For confirmation dialogs
-                modalConfirmBtn.classList.remove('hidden');
-                modalCancelBtn.classList.remove('hidden');
-                modalConfirmBtn.classList.remove('bg-red-500', 'bg-gray-500', 'bg-green-500'); // Ensure correct color
-                modalConfirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
-                modalConfirmBtn.textContent = 'Confirm';
-                modalCancelBtn.textContent = 'Cancel';
-
-                modalConfirmBtn.onclick = () => { window.closeModal(); resolve(true); };
-                modalCancelBtn.onclick = () => { window.closeModal(); resolve(false); };
-            } else { // 'alert' or default
-                modalOkBtn.classList.remove('hidden');
-                modalOkBtn.classList.remove('bg-green-500', 'bg-red-500'); // Ensure correct color
-                modalOkBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
-                modalOkBtn.textContent = 'OK';
-                modalOkBtn.onclick = () => { window.closeModal(); resolve(true); };
+            // Check if match is within 30 minutes
+            if (timeData.hours === 0 && timeData.minutes < 30) {
+                timerElement.innerHTML = `
+                    <span class="text-orange-500 font-bold">
+                        ${formatTimeUnit(timeData.minutes)}m ${formatTimeUnit(timeData.seconds)}s
+                    </span>
+                `;
+            } 
+            // More than 30 minutes remaining
+            else {
+                timerElement.innerHTML = `
+                    <span class="text-green-600">
+                        ${formatTimeUnit(timeData.hours)}h ${formatTimeUnit(timeData.minutes)}m
+                    </span>
+                `;
             }
-
-            modal.classList.add('flex'); // Show the modal
+        }, 1000);
+        
+        // Store timer reference
+        activeTimers.push({
+            id: matchId,
+            interval: timerInterval
         });
     }
-
-    // Alias for openModal with type 'confirm' for readability
-    async function openConfirmModal(message) {
-        return openModal(message, 'confirm');
+    
+    // Function to clear all timers when page unloads
+    function clearAllTimers() {
+        activeTimers.forEach(timer => clearInterval(timer.interval));
+        activeTimers = [];
     }
+    
+    // ===== MODAL FUNCTIONS =====
+    window.openModal = (messageHtml, type = 'ok') => {
+        return new Promise((resolve) => {
+            const modalContentEl = document.getElementById('modalContent');
+            const customModalEl = document.getElementById('customModal');
+            const modalOkBtn = document.getElementById('modalOkBtn');
+            const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+            const modalCancelBtn = document.getElementById('modalCancelBtn');
 
-    // Attach to window for global access
-    window.openModal = openModal;
-    window.openConfirmModal = openConfirmModal;
+            if (!modalContentEl || !customModalEl || !modalOkBtn || !modalConfirmBtn || !modalCancelBtn) {
+                console.error("Modal elements not found");
+                resolve(false);
+                return;
+            }
 
-    window.closeModal = () => { // Keep window.closeModal for inline onclick and general use
-        const customModalEl = document.getElementById('customModal');
-        if (customModalEl) customModalEl.classList.remove('flex');
-        // Re-enable main modal buttons if they were hidden by auth modal
-        document.getElementById('modalButtons').classList.remove('hidden');
+            modalContentEl.innerHTML = `<p class="text-xl font-semibold text-gray-700">${messageHtml}</p>`;
+            
+            // Reset button states
+            modalOkBtn.classList.add('hidden');
+            modalConfirmBtn.classList.add('hidden');
+            modalCancelBtn.classList.add('hidden');
+
+            // Configure buttons based on modal type
+            if (type === 'confirm_cancel') {
+                modalConfirmBtn.classList.remove('hidden');
+                modalCancelBtn.classList.remove('hidden');
+                modalConfirmBtn.onclick = () => { closeModal(); resolve(true); };
+                modalCancelBtn.onclick = () => { closeModal(); resolve(false); };
+            } else {
+                modalOkBtn.classList.remove('hidden');
+                modalOkBtn.onclick = () => { closeModal(); resolve(true); };
+            }
+            
+            customModalEl.classList.add('flex');
+        });
     };
 
-    // ===== AUTH MODALS (Updated to use new customModal structure) =====
-    // Attach to window for global access
-    window.showLoginRegisterModal = () => {
-        const modalContentEl = document.getElementById('modalContent');
-        modalContentEl.innerHTML = `
+    window.closeModal = () => {
+        const customModalEl = document.getElementById('customModal');
+        if (customModalEl) customModalEl.classList.remove('flex');
+    };
+
+    // ===== AUTH MODALS =====
+    const showLoginRegisterModal = () => {
+        document.getElementById('modalContent').innerHTML = `
             <h3 class="text-2xl font-bold text-blue-500 mb-6">Login / Register</h3>
             <form id="authForm" class="space-y-4">
                 <div>
@@ -780,46 +721,28 @@
         `;
         document.getElementById('customModal').classList.add('flex'); // Show modal
 
-        // Hide the default modal buttons (OK, Confirm, Cancel) for the auth form
-        document.getElementById('modalButtons').classList.add('hidden');
-
-        // Remove previous listeners to prevent duplicates
-        const authForm = document.getElementById('authForm');
-        const registerNewBtn = document.getElementById('registerNewBtn');
-
-        const newAuthFormHandler = (e) => {
+        document.getElementById('authForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            window.handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'login');
-        };
-        const newRegisterNewBtnHandler = () => {
-            window.handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'register');
-        };
-
-        // Remove existing listeners if they were attached
-        authForm.removeEventListener('submit', authForm._submitHandler || (() => {}));
-        registerNewBtn.removeEventListener('click', registerNewBtn._clickHandler || (() => {}));
-
-        // Add new listeners and store references for future removal
-        authForm.addEventListener('submit', newAuthFormHandler);
-        registerNewBtn.addEventListener('click', newRegisterNewBtnHandler);
-        authForm._submitHandler = newAuthFormHandler;
-        registerNewBtn._clickHandler = newRegisterNewBtnHandler;
+            handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'login');
+        });
+        document.getElementById('registerNewBtn').addEventListener('click', () => {
+            handleAuth(document.getElementById('authEmail').value, document.getElementById('authPassword').value, 'register');
+        });
     };
 
-    // Attach to window for global access
-    window.handleAuth = async (email, password, type) => {
+    const handleAuth = async (email, password, type) => {
         const authError = document.getElementById('authError');
         authError.textContent = ''; // Clear previous errors
 
         try {
             if (type === 'login') {
                 await signInWithEmailAndPassword(auth, email, password);
-                await window.openModal('Login successful!', 'success');
-                window.closeModal(); // Close the auth modal
+                await openModal('Login successful!', 'ok');
+                closeModal(); // Close the auth modal
             } else { // type === 'register'
                 await createUserWithEmailAndPassword(auth, email, password);
-                await window.openModal('Registration successful! You are now logged in.', 'success');
-                window.closeModal(); // Close the auth modal
+                await openModal('Registration successful! You are now logged in.', 'ok');
+                closeModal(); // Close the auth modal
             }
         } catch (error) {
             let errorMessage = 'An unknown error occurred.';
@@ -845,6 +768,56 @@
             authError.textContent = errorMessage;
         }
     };
+    // Add this to the registration form handler
+        // Add this to the registration form handler
+document.getElementById('matchSelect').addEventListener('change', async function() {
+    const matchId = this.value;
+    const matchOption = this.options[this.selectedIndex];
+    
+    if (matchId) {
+        // Fetch match details
+        const response = await fetch(`${API_BASE_URL}/api/match_slots`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const match = result.matchSlots.find(m => m.id === matchId);
+            if (match) {
+                document.getElementById('entryFeeAmount').textContent = match.entry.toFixed(2);
+            }
+        }
+    }
+});
+// Modify form submission
+document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Get payment method
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const entryFee = parseFloat(document.getElementById('entryFeeAmount').textContent);
+    
+    // Wallet balance check
+    if (paymentMethod === 'wallet') {
+        const walletResponse = await fetch(`${API_BASE_URL}/api/wallet?userId=${currentUser.uid}`);
+        const walletData = await walletResponse.json();
+        
+        if (!walletData.success || walletData.balance < entryFee) {
+            await openModal('Insufficient wallet balance. Please add funds or choose another payment method.');
+            return;
+        }
+    }
+    
+    // Proceed with registration
+    const registrationData = {
+        // ... existing data ...,
+        paymentMethod: paymentMethod
+    };
+    
+    // ... submit registration ...
+});
+        
+        
+
+
         
     // ===== CORE TOURNAMENT FUNCTIONS =====
 
@@ -863,29 +836,6 @@
         }
     }
 
-    // Function to add teammate input fields
-    window.addTeammateInput = (index) => {
-        const teammatesList = document.getElementById('teammatesList');
-        const div = document.createElement('div');
-        div.className = 'teammate-entry flex items-center space-x-4 mb-4';
-        div.innerHTML = `
-            <input type="text" id="memberIGN${index}" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate ${index} IGN" required>
-            <input type="text" id="memberFFID${index}" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate ${index} FFID" required>
-            <button type="button" class="remove-teammate-btn modern-btn !bg-red-500 hover:!bg-red-500 w-10 h-10 flex items-center justify-center"><i class="fas fa-times"></i></button>
-        `;
-        teammatesList.appendChild(div);
-
-        const removeBtn = div.querySelector('.remove-teammate-btn');
-        removeBtn.addEventListener('click', () => {
-            div.remove();
-            // Show add button again since we removed a teammate, if not at max
-            const currentTeammates = teammatesList.children.length;
-            if (currentTeammates < currentMaxTeammates) {
-                document.getElementById('addTeammateButton').classList.remove('hidden');
-            }
-        });
-    };
-
     // Fetch and display active match slots
     const fetchAndDisplayMatchSlots = async () => {
         const matchesContainer = document.getElementById('matchesContainer');
@@ -898,153 +848,159 @@
         loadingMatchesMessage.classList.remove('hidden');
         noMatchesMessage.classList.add('hidden');
 
-        // Clear existing timers before refreshing
-        clearAllTimers();
+        const response = await fetch('https://tha-tournaments.onrender.com/api/match_slots');
+        const result = await response.json();
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/match_slots`);
-            const result = await response.json();
+        loadingMatchesMessage.classList.add('hidden');
 
-            loadingMatchesMessage.classList.add('hidden');
+        if (result.success && result.matchSlots.length > 0) {
+            const activeUpcomingMatches = result.matchSlots.filter(match => 
+                match.active && isMatchOpenForRegistration(match.time)
+            );
 
-            if (result.success && result.matchSlots.length > 0) {
-                loadedMatchSlots = result.matchSlots; // Store for later use (e.g., registration fee)
-                const activeUpcomingMatches = result.matchSlots.filter(match => 
-                    match.active && isMatchOpenForRegistration(match.time)
-                );
+            if (activeUpcomingMatches.length > 0) {
+                activeUpcomingMatches.sort((a, b) => a.time.localeCompare(b.time)); // Sort by time
 
-                if (activeUpcomingMatches.length > 0) {
-                    activeUpcomingMatches.sort((a, b) => a.time.localeCompare(b.time)); // Sort by time
+                matchesContainer.innerHTML = ''; // Ensure cleared if loading message was there
 
-                    matchesContainer.innerHTML = ''; // Ensure cleared if loading message was there
-
-                    matchSelect.innerHTML = '<option value="">-- Select Match Type & Time --</option>'; // Default option
-                    activeUpcomingMatches.forEach(match => {
-                        // Calculate match status
-                        let timerHtml = '';
-                        
-                        // Use targetTimeMillis from backend for more accurate countdown
-                        const targetTimeMillis = match.targetTimeMillis;
-
-                        if (new Date().getTime() >= targetTimeMillis) {
-                            timerHtml = `<p class="text-lg font-bold text-red-500">Registration Closed</p>`;
-                        } else {
-                            timerHtml = `
-                                <p class="text-sm font-semibold text-gray-600">Starts in:</p>
-                                <p id="timer-${match.id}" class="text-lg font-bold text-green-600">
-                                    <!-- Initial content, updated by setInterval -->
-                                </p>
-                            `;
-                        }
-                        
-                        const cardHtml = `
-                            <div class="card-base p-8 border-l-4 border-blue-300 transform transition duration-300 hover:scale-105">
-                                <h3 class="text-2xl font-bold text-blue-600 mb-2">${match.type}</h3>
-                                <p class="text-gray-700 mb-1"><i class="fas fa-clock mr-2 text-blue-500"></i>Time: <span class="font-semibold">${match.time12hr}</span></p>
-                                <p class="text-gray-700 mb-1"><i class="fas fa-users mr-2 text-purple-500"></i>Players: <span class="font-semibold">${match.min_players} - ${match.max_players}</span></p>
-                                <p class="text-gray-700 mb-1"><i class="fas fa-rupee-sign mr-2 text-yellow-500"></i>Entry: <span class="font-semibold">₹${(match.entry || 0).toFixed(2)}</span></p>
-                                <p class="text-gray-700"><i class="fas fa-trophy mr-2 text-orange-400"></i>Prize: <span class="font-semibold">${match.prize || 'N/A'}</span></p>
-                                
-                                <div class="mt-4 text-center">
-                                    ${timerHtml}
-                                </div>
-                                
-                                <button data-match-id="${match.id}" data-match-type="${match.type}" data-match-time="${match.time}" 
-                                        class="register-btn mt-6 modern-btn w-full">
-                                    Register Now!
-                                </button>
-                            </div>
+                matchSelect.innerHTML = '<option value="">-- Select Match Type & Time --</option>'; // Default option
+                activeUpcomingMatches.forEach(match => {
+                    // Calculate match status
+                    const timeData = getTimeUntilMatch(match.time);
+                    let timerHtml = '';
+                    
+                    if (timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0) {
+                        timerHtml = `<p class="text-lg font-bold text-red-500">Match Started!</p>`;
+                    } else {
+                        timerHtml = `
+                            <p class="text-sm font-semibold text-gray-600">Starts in:</p>
+                            <p id="timer-${match.id}" class="text-lg font-bold text-green-600">
+                                ${formatTimeUnit(timeData.hours)}h ${formatTimeUnit(timeData.minutes)}m
+                            </p>
                         `;
-                        matchesContainer.insertAdjacentHTML('beforeend', cardHtml);
-                        matchSelect.insertAdjacentHTML('beforeend', `<option value="${match.id}" data-match-type="${match.type}" data-match-time="${match.time}">${match.time12hr} - ${match.type}</option>`);
-                        
-                        // Start timer if match hasn't started yet
-                        if (new Date().getTime() < targetTimeMillis) {
-                            // Use the new updateCountdown function for table countdowns
-                            countdownTimers[match.id] = setInterval(() => updateCountdown(match.id, targetTimeMillis), 1000);
-                            updateCountdown(match.id, targetTimeMillis); // Initial call
-                        }
-                    });
+                    }
+                    
+                    const cardHtml = `
+                        <div class="card-base p-8 border-l-4 border-blue-300 transform transition duration-300 hover:scale-105">
+                            <h3 class="text-2xl font-bold text-blue-600 mb-2">${match.type}</h3>
+                            <p class="text-gray-700 mb-1"><i class="fas fa-clock mr-2 text-blue-500"></i>Time: <span class="font-semibold">${match.time}</span></p>
+                            <p class="text-gray-700 mb-1"><i class="fas fa-users mr-2 text-purple-500"></i>Players: <span class="font-semibold">${match.min_players} - ${match.max_players}</span></p>
+                            <p class="text-gray-700 mb-1"><i class="fas fa-rupee-sign mr-2 text-yellow-500"></i>Entry: <span class="font-semibold">₹${(match.entry || 0).toFixed(2)}</span></p>
+                            <p class="text-gray-700"><i class="fas fa-trophy mr-2 text-orange-400"></i>Prize: <span class="font-semibold">${match.prize || 'N/A'}</span></p>
+                            
+                            <div class="mt-4 text-center">
+                                ${timerHtml}
+                            </div>
+                            
+                            <button data-match-id="${match.id}" data-match-type="${match.type}" data-match-time="${match.time}" 
+                                    class="register-btn mt-6 modern-btn w-full">
+                                Register Now!
+                            </button>
+                        </div>
+                    `;
+                    matchesContainer.insertAdjacentHTML('beforeend', cardHtml);
+                    matchSelect.insertAdjacentHTML('beforeend', `<option value="${match.id}" data-match-type="${match.type}" data-match-time="${match.time}">${match.time} - ${match.type}</option>`);
+                    
+                    // Start timer if match hasn't started yet
+                    if (!(timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0)) {
+                        startMatchTimer(match.id, match.time);
+                    }
+                });
 
-                    // Add event listeners to the new "Register Now!" buttons
-                    document.querySelectorAll('.register-btn').forEach(button => {
-                        button.addEventListener('click', () => {
-                            const matchId = button.dataset.matchId;
-                            // Set the selected match in the registration form dropdown
-                            document.getElementById('matchSelect').value = matchId;
-                            // Scroll to registration form
-                            document.getElementById('registrationForm').scrollIntoView({ behavior: 'smooth' });
-                            // Trigger change to update teammate section and entry fee
-                            const event = new Event('change');
-                            document.getElementById('matchSelect').dispatchEvent(event);
-                        });
+                // Add event listeners to the new "Register Now!" buttons
+                document.querySelectorAll('.register-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const matchId = button.dataset.matchId;
+                        // Set the selected match in the registration form dropdown
+                        document.getElementById('matchSelect').value = matchId;
+                        // Scroll to registration form
+                        document.getElementById('registrationForm').scrollIntoView({ behavior: 'smooth' });
+                        // Trigger change to update teammate section
+                        const event = new Event('change');
+                        document.getElementById('matchSelect').dispatchEvent(event);
                     });
+                });
 
-                } else {
-                    noMatchesMessage.classList.remove('hidden');
-                    matchSelect.innerHTML = '<option value="">-- No active matches for registration --</option>';
-                }
             } else {
                 noMatchesMessage.classList.remove('hidden');
-                if (!result.success) {
-                    await window.openModal(result.message || 'Failed to load match slots.', 'error');
-                }
+                matchSelect.innerHTML = '<option value="">-- No active matches for registration --</option>';
             }
-        } catch (error) {
-            console.error('Error fetching match slots:', error);
-            await window.openModal('Failed to load upcoming matches. Please try again later.', 'error');
-            document.getElementById('matchesContainer').innerHTML = `<p class="text-center text-red-500 md:col-span-3">Error loading matches.</p>`;
-            matchSelect.innerHTML = '<option value="">-- Error Loading Matches --</option>';
-            loadedMatchSlots = [];
+        } else {
+            noMatchesMessage.classList.remove('hidden');
+            if (!result.success) {
+                await openModal(result.message || 'Failed to load match slots.');
+            }
         }
+        // Populate dailyMatchSlots for registration form logic
+        populateDailyMatchSlots(result.matchSlots);
     };
 
+    let loadedMatchSlots = []; // Global variable to store fetched match slots
+
+    // This function populates a global variable used by the registration form
+    const populateDailyMatchSlots = (matchSlots) => {
+        loadedMatchSlots = matchSlots; // Store the full list
+    };
 
     // ===== TEAMMATE INPUT MANAGEMENT =====
-    // Attach to window for global access
-    window.updateTeammateInputs = () => {
+    function addTeammateInput(index, isInitial = false) {
+        const teammatesList = document.getElementById('teammatesList');
+        const div = document.createElement('div');
+        div.className = 'teammate-entry flex items-center space-x-4 mb-4';
+        div.innerHTML = `
+            <input type="text" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate IGN" required>
+            <input type="text" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate FFID" required>
+            ${isInitial ? '' : '<button type="button" class="remove-teammate-btn modern-btn !bg-red-500 hover:!bg-red-500 w-10 h-10 flex items-center justify-center"><i class="fas fa-times"></i></button>'}
+        `;
+        teammatesList.appendChild(div);
+
+        // Add remove button functionality for non-initial teammates
+        if (!isInitial) {
+            const removeBtn = div.querySelector('.remove-teammate-btn');
+            removeBtn.addEventListener('click', () => {
+                div.remove();
+                // Show add button again since we removed a teammate
+                document.getElementById('addTeammateButton').classList.remove('hidden');
+            });
+        }
+    }
+
+    // Handle teammate inputs dynamically based on match type
+    const updateTeammateInputs = () => {
         const matchSelect = document.getElementById('matchSelect');
         const teammatesSection = document.getElementById('teammatesSection');
         const teammatesList = document.getElementById('teammatesList');
         const addTeammateButton = document.getElementById('addTeammateButton');
-        const matchEntryFeeSpan = document.getElementById('matchEntryFee'); // Get the entry fee span
 
         teammatesList.innerHTML = ''; // Clear existing inputs
         addTeammateButton.onclick = null; // Clear previous handler
         addTeammateButton.classList.remove('hidden'); // Show by default
-        matchEntryFeeSpan.textContent = `₹0.00`; // Reset fee display
 
         const selectedMatchId = matchSelect.value;
         const selectedMatch = loadedMatchSlots.find(slot => slot.id === selectedMatchId);
 
         if (selectedMatch) {
             const matchType = selectedMatch.type.toLowerCase();
-            matchEntryFeeSpan.textContent = `₹${(selectedMatch.entry || 0).toFixed(2)}`; // Update fee display
             
             // Reset max teammates
             currentMaxTeammates = 0;
             
             if (matchType.includes('solo')) {
                 teammatesSection.classList.add('hidden');
-                currentMaxTeammates = 0; // Solo needs 0 additional teammates
             } else if (matchType.includes('duo')) {
-                currentMaxTeammates = 1; // Duo needs 1 additional teammate
+                currentMaxTeammates = 1;
                 teammatesSection.classList.remove('hidden');
-                // Add one initial teammate
-                window.addTeammateInput(1);
+                // Add one initial teammate without remove button
+                addTeammateInput(1, true);
                 // Hide add button for duo since only one teammate is needed
                 addTeammateButton.classList.add('hidden');
             } else if (matchType.includes('squad') || matchType.includes('team')) {
-                currentMaxTeammates = 3; // Squad/Team needs 3 additional teammates
+                currentMaxTeammates = 3;
                 teammatesSection.classList.remove('hidden');
-                // Add one initial teammate
-                window.addTeammateInput(1);
+                // Add one initial teammate without remove button
+                addTeammateInput(1, true);
                 // Show add button for squad since we can add more teammates
-                if (currentMaxTeammates > 1) { // Only show if more than 1 teammate is allowed
-                    addTeammateButton.classList.remove('hidden');
-                } else {
-                    addTeammateButton.classList.add('hidden');
-                }
+                addTeammateButton.classList.remove('hidden');
             }
 
             // Configure add teammate button
@@ -1052,14 +1008,14 @@
                 const currentTeammates = teammatesList.children.length;
                 if (currentTeammates < currentMaxTeammates) {
                     // Add teammate with remove button
-                    window.addTeammateInput(currentTeammates + 1);
+                    addTeammateInput(currentTeammates + 1);
                     
                     // Hide button if max reached
                     if (teammatesList.children.length >= currentMaxTeammates) {
                         addTeammateButton.classList.add('hidden');
                     }
                 } else {
-                    window.openModal('You have reached the maximum number of teammates for this match type.', 'alert');
+                    openModal('You have reached the maximum number of teammates for this match type.');
                 }
             });
         } else {
@@ -1067,9 +1023,8 @@
         }
     };
 
-    // Submit Registration (Updated)
-    // Attach to window for global access
-    window.registerForMatch = async (e) => {
+    // Submit Registration
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const registrationMessage = document.getElementById('registrationMessage');
         registrationMessage.classList.add('hidden'); // Hide previous message
@@ -1077,24 +1032,22 @@
         if (!currentUser) {
             registrationMessage.textContent = 'Please log in or register to participate.';
             registrationMessage.classList.remove('hidden');
-            window.showLoginRegisterModal();
+            showLoginRegisterModal();
             return;
         }
 
         const matchSelect = document.getElementById('matchSelect');
         const selectedMatchId = matchSelect.value;
         const selectedMatchOption = matchSelect.options[matchSelect.selectedIndex];
-        // The matchType and matchTime are not directly used in the backend payload
-        // but are useful for frontend display/validation.
-        // const matchType = selectedMatchOption.dataset.matchType;
-        // const matchTime = selectedMatchOption.dataset.matchTime;
+        const matchType = selectedMatchOption.dataset.matchType;
+        const matchTime = selectedMatchOption.dataset.matchTime;
 
         const iglIGN = document.getElementById('iglIGN').value;
         const iglFFID = document.getElementById('iglFFID').value;
 
         const teammates = [];
-        const teammateIGNs = document.querySelectorAll('#teammatesList input[id^="memberIGN"]');
-        const teammateFFIDs = document.querySelectorAll('#teammatesList input[id^="memberFFID"]');
+        const teammateIGNs = document.querySelectorAll('#teammatesList input[placeholder*="IGN"]');
+        const teammateFFIDs = document.querySelectorAll('#teammatesList input[placeholder*="FFID"]');
 
         for (let i = 0; i < teammateIGNs.length; i++) {
             if (teammateIGNs[i].value && teammateFFIDs[i].value) {
@@ -1103,111 +1056,62 @@
                     ffid: teammateFFIDs[i].value
                 });
             } else {
-                await window.openModal('Please fill in all teammate IGNs and FFIDs, or remove empty fields.', 'error');
+                await openModal('Please fill in all teammate IGNs and FFIDs, or remove empty fields.', 'ok');
                 return;
             }
         }
 
         // Validate number of teammates based on match type
-        const selectedMatchSlot = loadedMatchSlots.find(slot => slot.id === selectedMatchId);
-        if (!selectedMatchSlot) {
-            await window.openModal('Selected match slot not found. Please try again.', 'error');
-            return;
+        const matchTypeLower = matchType.toLowerCase();
+        let requiredTeammates = 0;
+        if (matchTypeLower.includes('duo')) {
+            requiredTeammates = 1;
+        } else if (matchTypeLower.includes('squad') || matchTypeLower.includes('team')) {
+            requiredTeammates = 3;
         }
-        
-        // Calculate expected teammates based on selected match's min_players/max_players
-        let expectedTeammates = 0;
-        const selectedMatchType = selectedMatchSlot.type.toLowerCase();
-        if (selectedMatchType.includes('duo')) {
-            expectedTeammates = 1; // Leader + 1 teammate
-        } else if (selectedMatchType.includes('squad') || selectedMatchType.includes('team')) {
-            expectedTeammates = 3; // Leader + 3 teammates
-        }
-        // For solo, expectedTeammates remains 0
 
-        if (teammates.length !== expectedTeammates) {
-            await window.openModal(`This match type requires exactly ${expectedTeammates} teammate(s) in addition to yourself. You have provided ${teammates.length}.`, 'error');
+        if (teammates.length !== requiredTeammates) {
+            await openModal(`This match requires exactly ${requiredTeammates} teammate(s). You have provided ${teammates.length}.`);
             return;
         }
 
-        const registrationFee = selectedMatchSlot.entry || 0; // Get entry fee
+        const registrationData = {
+            userId: currentUser.uid,
+            email: currentUser.email,
+            matchId: selectedMatchId,
+            matchType: matchType,
+            matchTime: matchTime,
+            iglIGN: iglIGN,
+            iglFFID: iglFFID,
+            teammates: teammates,
+            clientTime: new Date().toISOString()
+        };
 
-        // Display confirmation dialog with fee
-        const confirmRegistration = await window.openConfirmModal(`Confirm registration for "${selectedMatchSlot.type}"?` + 
-                                                         (registrationFee > 0 ? `\nEntry Fee: ₹${registrationFee.toFixed(2)}. This will be deducted from your wallet.` : ''));
-        if (!confirmRegistration) {
-            return; // User cancelled
+        document.getElementById('registerButton').disabled = true;
+        document.getElementById('registerButton').textContent = 'Registering...';
+
+        const response = await fetch('https://tha-tournaments.onrender.com/api/register_tournament', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(registrationData),
+        });
+        const result = await response.json();
+
+        document.getElementById('registerButton').disabled = false;
+        document.getElementById('registerButton').textContent = 'Register Now!';
+
+        if (result.success) {
+            await openModal(result.message);
+            document.getElementById('registrationForm').reset();
+            updateTeammateInputs(); // Clear teammate fields
+            // Optionally redirect to registered.html
+            window.location.href = '/registered.html'; 
+        } else {
+            await openModal(result.message || 'Registration failed. Please try again.');
         }
-
-        // Check if loadingOverlay exists before trying to access classList
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            loadingOverlay.classList.remove('hidden'); // Show loading
-        }
-
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/register-for-match`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    matchSlotId: selectedMatchId,
-                    teamName: iglIGN + "'s Team", // Example: Use leader's IGN as team name
-                    leaderUid: currentUser.uid,
-                    leaderEmail: currentUser.email,
-                    leaderIgn: iglIGN,
-                    leaderWhatsapp: iglFFID, // Assuming FFID is used as WhatsApp for now
-                    memberIgn1: teammates[0]?.ign || '',
-                    memberIgn2: teammates[1]?.ign || '',
-                    memberIgn3: teammates[2]?.ign || ''
-                }),
-            });
-
-            // Check if the response is OK (status 2xx) before trying to parse JSON
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Backend Error Response (Non-JSON or Error Status):", errorText);
-                throw new Error(`Server responded with status ${response.status}: ${errorText}`);
-            }
-
-            const result = await response.json();
-
-            document.getElementById('registerButton').disabled = false;
-            document.getElementById('registerButton').textContent = 'Register Now! ';
-
-            if (result.success) {
-                await window.openModal(result.message, 'success');
-                document.getElementById('registrationForm').reset();
-                window.updateTeammateInputs(); // Reset team inputs
-                fetchAndDisplayMatchSlots(); // Refresh match slots to update counts
-                // Optionally, update wallet balance on index page if displayed or redirect to wallet
-            } else {
-                // Handle insufficient funds specifically
-                if (result.message.includes("Insufficient funds")) {
-                    await window.openModal(`${result.message} Please add funds to your wallet. You will be redirected to the Wallet page.`, 'error').then(() => {
-                        window.location.href = '/wallet.html'; // Redirect to wallet page
-                    });
-                } else {
-                    await window.openModal(`Registration failed: ${result.message}`, 'error');
-                }
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            // Provide a more informative message if the error is from the backend response
-            if (error.message.startsWith('Server responded with status')) {
-                await window.openModal(`Registration failed: ${error.message}. Please check backend logs.`, 'error');
-            } else {
-                await window.openModal('An error occurred during registration. Please try again later.', 'error');
-            }
-        } finally {
-            // Check if loadingOverlay exists before trying to access classList
-            if (loadingOverlay) {
-                loadingOverlay.classList.add('hidden'); // Hide loading
-            }
-        }
-    };
+    });
 
     // ===== DYNAMIC CONTENT DISPLAY FUNCTIONS =====
 
@@ -1219,7 +1123,7 @@
     contactContentDiv.innerHTML = '<p class="text-center text-gray-600">Loading contact information...</p>';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/configs/website_content`);
+        const response = await fetch('https://tha-tournaments.onrender.com/api/configs/website_content');
 
         if (!response.ok) {
             const text = await response.text();
@@ -1239,13 +1143,13 @@
         } else {
             rulesContentDiv.innerHTML = 'Failed to load rules.';
             contactContentDiv.innerHTML = 'Failed to load contact.';
-            await window.openModal(result.message || "No content returned.", 'error');
+            await openModal(result.message || "No content returned.");
         }
     } catch (error) {
         console.error('Error fetching website content:', error);
         rulesContentDiv.innerHTML = 'Error loading rules.';
         contactContentDiv.innerHTML = 'Error loading contact.';
-        await window.openModal("Backend error: " + error.message, 'error');
+        await openModal("Backend error: " + error.message);
     }
 };
 
@@ -1259,7 +1163,7 @@
         noScheduleMessage.classList.add('hidden');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/schedule_items`);
+            const response = await fetch('https://tha-tournaments.onrender.com/api/schedule_items');
             const result = await response.json();
 
             loadingScheduleMessage.classList.add('hidden');
@@ -1279,13 +1183,13 @@
             } else {
                 noScheduleMessage.classList.remove('hidden');
                 if (!result.success) {
-                    await window.openModal(result.message || 'Failed to load schedule items.', 'error');
+                    await openModal(result.message || 'Failed to load schedule items.');
                 }
             }
         } catch (error) {
             console.error('Error fetching schedule items:', error);
             scheduleTableBody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-red-500">Error loading schedule.</td></tr>`;
-            await window.openModal(`Failed to connect to backend for schedule: ${error.message}`, 'error');
+            await openModal(`Failed to connect to backend for schedule: ${error.message}`);
         }
     };
 
@@ -1299,7 +1203,7 @@
         noPrizeMessage.classList.add('hidden');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/prize_items`);
+            const response = await fetch('https://tha-tournaments.onrender.com/api/prize_items');
             const result = await response.json();
 
             loadingPrizeMessage.classList.add('hidden');
@@ -1322,108 +1226,84 @@
             } else {
                 noPrizeMessage.classList.remove('hidden');
                 if (!result.success) {
-                    await window.openModal(result.message || 'Failed to load prize items.', 'error');
+                    await openModal(result.message || 'Failed to load prize items.');
                 }
             }
         } catch (error) {
             console.error('Error fetching prize items:', error);
             prizeTableBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-red-500">Error loading prize information.</td></tr>`;
-            await window.openModal(`Failed to connect to backend for prize items: ${error.message}`, 'error');
+            await openModal(`Failed to connect to backend for prize items: ${error.message}`);
         }
     };
 
     // ===== AUTH STATE HANDLER =====
-    onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user) => {
+    
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const authButton = document.getElementById('authButton');
+    const myRegistrationsButton = document.getElementById('myRegistrationsButton');
+    const logoutButton = document.getElementById('logoutButton');
+    const loggedInEmailSpan = document.getElementById('loggedInEmail');
+    const loggedInUserInfo = document.getElementById('loggedInUserInfo');
+    const regEmail = document.getElementById('regEmail');
+    const regUserId = document.getElementById('regUserId');
+    const loginPrompt = document.getElementById('loginPrompt');
+    const registerButton = document.getElementById('registerButton');
+    
+    // Always show content after auth check
+    if (loadingScreen) loadingScreen.classList.add('hidden');
+    if (mainContent) mainContent.classList.remove('hidden');
+    
+    currentUser = user;
+    if (user) {
+        // ✅ Show logout and registrations buttons
+        if (logoutButton) logoutButton.classList.remove('hidden');
+        if (myRegistrationsButton) myRegistrationsButton.classList.remove('hidden');
+    } else {
+        // ❌ Hide if not logged in
+        if (logoutButton) logoutButton.classList.add('hidden');
+        if (myRegistrationsButton) myRegistrationsButton.classList.add('hidden');
+    }
+    if (user) {
+        if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email;
+        if (logoutButton) logoutButton.classList.remove('hidden');
         
-        const loadingScreen = document.getElementById('loadingScreen');
-        const mainContent = document.getElementById('mainContent');
-        const authButton = document.getElementById('authButton');
-        const myRegistrationsButton = document.getElementById('myRegistrationsButton');
-        const logoutButton = document.getElementById('logoutButton');
-        const loggedInEmailSpan = document.getElementById('loggedInEmail');
-        const loggedInUserInfo = document.getElementById('loggedInUserInfo');
-        const regEmail = document.getElementById('regEmail');
-        const regUserId = document.getElementById('regUserId');
-        const loginPrompt = document.getElementById('loginPrompt');
-        const registerButton = document.getElementById('registerButton');
-        const walletButton = document.getElementById('walletButton'); // Get wallet button
-        const adminPanelButton = document.getElementById('adminPanelButton'); // Get admin button
-
-
-        // Always hide loading screen and show main content after auth check
-        if (loadingScreen) loadingScreen.classList.add('hidden');
-        if (mainContent) mainContent.classList.remove('hidden');
+        // Update the registration form with logged-in user info
+        if (loggedInUserInfo) loggedInUserInfo.classList.remove('hidden');
+        if (regEmail) regEmail.textContent = user.email;
+        if (regUserId) regUserId.textContent = user.uid;
+        if (loginPrompt) loginPrompt.classList.add('hidden');
+        if (registerButton) registerButton.disabled = false;
         
-        currentUser = user;
-        if (user) {
-            // Logged in state
-            if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email;
-            if (logoutButton) logoutButton.classList.remove('hidden');
-            if (myRegistrationsButton) myRegistrationsButton.classList.remove('hidden');
-            if (walletButton) walletButton.classList.remove('hidden'); // Show wallet button when logged in
-            if (authButton) authButton.classList.add('hidden'); // Hide login/register button
-
-            // Update the registration form with logged-in user info
-            if (loggedInUserInfo) loggedInUserInfo.classList.remove('hidden');
-            if (regEmail) regEmail.textContent = user.email;
-            if (regUserId) regUserId.textContent = user.uid;
-            if (loginPrompt) loginPrompt.classList.add('hidden');
-            if (registerButton) registerButton.disabled = false;
-            
-            // Set logout handler
-            if (logoutButton) {
-                logoutButton.onclick = async () => {
-                    try {
-                        await signOut(auth);
-                        window.location.href = '/';
-                    } catch (error) {
-                        console.error("Logout error:", error);
-                        await window.openModal("Logout failed", 'error');
-                    }
-                };
-            }
-            // Admin panel button visibility (client-side check for UI only)
-            if (user.uid === 'e2vzNJEFhoVk0l1v4MtCp6OHHn03') { // Replace with your actual ADMIN_UID
-                if (adminPanelButton) adminPanelButton.classList.remove('hidden');
-            } else {
-                if (adminPanelButton) adminPanelButton.classList.add('hidden');
-            }
-            
-        } else {
-            // Logged out state
-            if (loggedInEmailSpan) loggedInEmailSpan.textContent = 'Guest';
-            if (logoutButton) logoutButton.classList.add('hidden');
-            if (myRegistrationsButton) myRegistrationsButton.classList.add('hidden');
-            if (walletButton) walletButton.classList.add('hidden'); // Hide wallet button when logged out
-            if (adminPanelButton) adminPanelButton.classList.add('hidden'); // Hide admin button
-            if (authButton) authButton.classList.remove('hidden'); // Show login/register button
-
-            // Update registration form to prompt login
-            if (loggedInUserInfo) loggedInUserInfo.classList.add('hidden');
-            if (loginPrompt) loginPrompt.classList.remove('hidden');
-            if (registerButton) registerButton.disabled = true;
-            // Ensure authButton click handler is set for logged out state
-            if (authButton) authButton.onclick = window.showLoginRegisterModal; 
+        // Set logout handler
+        if (logoutButton) {
+            logoutButton.onclick = async () => {
+                try {
+                    await signOut(auth);
+                    window.location.href = '/';
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    await openModal("Logout failed");
+                }
+            };
         }
-    });
+        
+    } else {
+        if (loggedInEmailSpan) loggedInEmailSpan.textContent = 'Guest';
+        if (logoutButton) logoutButton.classList.add('hidden');
+        
+        // Update registration form to prompt login
+        if (loggedInUserInfo) loggedInUserInfo.classList.add('hidden');
+        if (loginPrompt) loginPrompt.classList.remove('hidden');
+        if (registerButton) registerButton.disabled = true;
+        if (authButton) authButton.onclick = showLoginRegisterModal;
+    }
+});
 
     // ===== EVENT LISTENERS AND INITIAL LOAD =====
     document.addEventListener('DOMContentLoaded', () => {
-        // Auth form listeners are now handled directly within showLoginRegisterModal for dynamic content
-        // No need to attach them here if showLoginRegisterModal creates and attaches them.
-
-        // Navigation buttons - use optional chaining for robustness
-        document.getElementById('authButton')?.addEventListener('click', window.showLoginRegisterModal);
-        document.getElementById('myRegistrationsButton')?.addEventListener('click', () => {
-            window.location.href = '/registered.html';
-        });
-        document.getElementById('adminPanelButton')?.addEventListener('click', () => {
-            window.location.href = '/admin_panel.html';
-        });
-        
-        // Registration form listener
-        document.getElementById('registrationForm')?.addEventListener('submit', window.registerForMatch);
-        document.getElementById('matchSelect')?.addEventListener('change', window.updateTeammateInputs);
+        document.getElementById('matchSelect').addEventListener('change', updateTeammateInputs);
 
         // Initial fetches for dynamic content
         fetchAndDisplayMatchSlots(); // This also populates matchSelect and `loadedMatchSlots`
@@ -1433,6 +1313,11 @@
         
         // Clear timers when page is unloaded
         window.addEventListener('beforeunload', clearAllTimers);
+
+        // Add this in the script section
+                document.getElementById('walletButton')?.addEventListener('click', () => {
+            window.location.href = '/wallet.html';
+        });
     });
 </script>
 
