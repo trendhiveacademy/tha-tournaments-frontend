@@ -7,7 +7,7 @@
     <title>Wallet - THA Tournaments</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
     <style>
         /* Reuse existing styles from index.html */
         @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -297,76 +297,6 @@ async function fetchTransactions() {
     }
 }
 
-// Initialize Razorpay order-based payment
-async function initPayment() {
-    const amount = parseFloat(depositAmount.value);
-    if (!amount || amount < 10) return;
-    modal.classList.remove('hidden');
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/create_razorpay_order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: amount * 100, userId: currentUser.uid })
-        });
-
-        const orderData = await response.json();
-
-        if (!orderData.success) {
-            throw new Error(orderData.message || 'Order creation failed');
-        }
-
-        const options = {
-            key: orderData.key_id,
-            amount: orderData.amount,
-            currency: "INR",
-            name: "THA Tournaments",
-            description: "Wallet Deposit",
-            order_id: orderData.order_id,
-            handler: async function (response) {
-                const verification = await fetch(`${API_BASE_URL}/api/verify_payment`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_signature: response.razorpay_signature,
-                        amount: amount,
-                        userId: currentUser.uid
-                    })
-                });
-
-                const result = await verification.json();
-                if (result.success) {
-                    alert('Payment successful! Wallet updated.');
-                    fetchWalletBalance();
-                    fetchTransactions();
-                } else {
-                    alert('Payment verification failed.');
-                }
-                modal.classList.add('hidden');
-            },
-            modal: {
-                ondismiss: function () {
-                    modal.classList.add('hidden');
-                    document.getElementById("errorScreen").classList.remove("hidden");
-                }
-            },
-            prefill: {
-                name: currentUser.displayName || "",
-                email: currentUser.email || ""
-            },
-            theme: { color: "#3B82F6" }
-        };
-
-        const rzp = new Razorpay(options);
-        rzp.open();
-    } catch (error) {
-        console.error("Payment Error:", error);
-        alert(`Payment failed: ${error.message}`);
-        modal.classList.add('hidden');
-    }
-}
 
 // Initialize wallet page
 function initWalletPage() {
