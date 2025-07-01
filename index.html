@@ -1084,8 +1084,10 @@
         const matchSelect = document.getElementById('matchSelect');
         const selectedMatchId = matchSelect.value;
         const selectedMatchOption = matchSelect.options[matchSelect.selectedIndex];
-        const matchType = selectedMatchOption.dataset.matchType;
-        const matchTime = selectedMatchOption.dataset.matchTime;
+        // The matchType and matchTime are not directly used in the backend payload
+        // but are useful for frontend display/validation.
+        // const matchType = selectedMatchOption.dataset.matchType;
+        // const matchTime = selectedMatchOption.dataset.matchTime;
 
         const iglIGN = document.getElementById('iglIGN').value;
         const iglFFID = document.getElementById('iglFFID').value;
@@ -1163,6 +1165,13 @@
                 }),
             });
 
+            // Check if the response is OK (status 2xx) before trying to parse JSON
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Backend Error Response (Non-JSON or Error Status):", errorText);
+                throw new Error(`Server responded with status ${response.status}: ${errorText}`);
+            }
+
             const result = await response.json();
 
             document.getElementById('registerButton').disabled = false;
@@ -1186,7 +1195,12 @@
             }
         } catch (error) {
             console.error('Registration error:', error);
-            await window.openModal('An error occurred during registration. Please try again later.', 'error');
+            // Provide a more informative message if the error is from the backend response
+            if (error.message.startsWith('Server responded with status')) {
+                await window.openModal(`Registration failed: ${error.message}. Please check backend logs.`, 'error');
+            } else {
+                await window.openModal('An error occurred during registration. Please try again later.', 'error');
+            }
         } finally {
             // Check if loadingOverlay exists before trying to access classList
             if (loadingOverlay) {
