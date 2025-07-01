@@ -538,15 +538,17 @@
         <div class="custom-modal-content w-full max-w-md mx-auto">
             <span class="custom-modal-close-button" onclick="closeModal()">&times;</span>
             <div id="modalContent" class="py-6 px-4 sm:px-6">
-                </div>
+                <!-- Content will be dynamically inserted here -->
+                <p id="modalMessage" class="text-xl font-semibold text-gray-700"></p>
+            </div>
             <div id="modalButtons" class="mt-8 flex justify-center space-x-4">
                 <button id="modalConfirmBtn" class="hidden btn-primary-modal">
                     Confirm
                 </button>
-                <button id="modalCancelBtn" class="hidden btn-secondary-modal" onclick="closeModal()">
+                <button id="modalCancelBtn" class="hidden btn-secondary-modal">
                     Cancel
                 </button>
-                <button id="modalOkBtn" class="btn-primary-modal" onclick="closeModal()">
+                <button id="modalOkBtn" class="btn-primary-modal">
                     OK
                 </button>
             </div>
@@ -573,7 +575,7 @@
     let currentMaxTeammates = 0; // To track max teammates based on match type
     let loadedMatchSlots = []; // Global variable to store fetched match slots
 
-    const API_BASE_URL = window.location.origin; // Dynamically get the base URL
+    const API_BASE_URL = "https://tha-tournaments.onrender.com"; // Explicitly set backend URL
     
     // ===== TIMER FUNCTIONS =====
     // Global array to store timer references
@@ -660,48 +662,55 @@
         activeTimers = [];
     }
     
-    // ===== MODAL FUNCTIONS (Updated) =====
+    // ===== MODAL FUNCTIONS (Updated to handle dynamic content and multiple buttons) =====
+    // This function is now more flexible to handle both simple alerts and confirm dialogs.
     async function openModal(message, type = 'alert') {
         return new Promise((resolve) => {
             const modal = document.getElementById('customModal');
-            const modalMessage = document.getElementById('modalContent').querySelector('p'); // Target the p tag inside modalContent
-            if (!modalMessage) { // Create it if it doesn't exist
-                document.getElementById('modalContent').innerHTML = `<p id="modalMessage" class="text-xl font-semibold text-gray-700"></p>`;
-                modalMessage = document.getElementById('modalMessage');
+            let modalMessageEl = document.getElementById('modalMessage');
+            
+            // If modalMessageEl doesn't exist (e.g., first call), create it inside modalContent
+            if (!modalMessageEl) {
+                const modalContentDiv = document.getElementById('modalContent');
+                modalMessageEl = document.createElement('p');
+                modalMessageEl.id = 'modalMessage';
+                modalMessageEl.className = 'text-xl font-semibold text-gray-700';
+                modalContentDiv.appendChild(modalMessageEl);
             }
 
             const modalConfirmBtn = document.getElementById('modalConfirmBtn');
             const modalCancelBtn = document.getElementById('modalCancelBtn');
             const modalOkBtn = document.getElementById('modalOkBtn');
 
-            modalMessage.textContent = message;
+            modalMessageEl.textContent = message;
             
             // Reset button visibility and event listeners
             modalConfirmBtn.classList.add('hidden');
             modalCancelBtn.classList.add('hidden');
             modalOkBtn.classList.add('hidden');
 
+            // Clear previous event listeners to prevent duplicates
             modalConfirmBtn.onclick = null;
             modalCancelBtn.onclick = null;
             modalOkBtn.onclick = null;
 
-            // Set button text and color based on type
+            // Configure buttons based on modal type
             if (type === 'success') {
                 modalOkBtn.classList.remove('hidden');
-                modalOkBtn.classList.remove('bg-red-500', 'bg-gray-500');
+                modalOkBtn.classList.remove('bg-red-500', 'bg-gray-500'); // Ensure correct color
                 modalOkBtn.classList.add('bg-green-500', 'hover:bg-green-600');
                 modalOkBtn.textContent = 'OK';
                 modalOkBtn.onclick = () => { closeModal(); resolve(true); };
             } else if (type === 'error') {
                 modalOkBtn.classList.remove('hidden');
-                modalOkBtn.classList.remove('bg-green-500', 'bg-gray-500');
+                modalOkBtn.classList.remove('bg-green-500', 'bg-gray-500'); // Ensure correct color
                 modalOkBtn.classList.add('bg-red-500', 'hover:bg-red-600');
                 modalOkBtn.textContent = 'OK';
                 modalOkBtn.onclick = () => { closeModal(); resolve(true); };
-            } else if (type === 'confirm') { // New 'confirm' type
+            } else if (type === 'confirm') { // For confirmation dialogs
                 modalConfirmBtn.classList.remove('hidden');
                 modalCancelBtn.classList.remove('hidden');
-                modalConfirmBtn.classList.remove('bg-red-500', 'bg-gray-500', 'bg-green-500');
+                modalConfirmBtn.classList.remove('bg-red-500', 'bg-gray-500', 'bg-green-500'); // Ensure correct color
                 modalConfirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
                 modalConfirmBtn.textContent = 'Confirm';
                 modalCancelBtn.textContent = 'Cancel';
@@ -710,23 +719,26 @@
                 modalCancelBtn.onclick = () => { closeModal(); resolve(false); };
             } else { // 'alert' or default
                 modalOkBtn.classList.remove('hidden');
-                modalOkBtn.classList.remove('bg-green-500', 'bg-red-500');
+                modalOkBtn.classList.remove('bg-green-500', 'bg-red-500'); // Ensure correct color
                 modalOkBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
                 modalOkBtn.textContent = 'OK';
                 modalOkBtn.onclick = () => { closeModal(); resolve(true); };
             }
 
-            modal.classList.add('flex');
+            modal.classList.add('flex'); // Show the modal
         });
     }
 
-    async function openConfirmModal(message) { // Alias for openModal with type 'confirm'
+    // Alias for openModal with type 'confirm' for readability
+    async function openConfirmModal(message) {
         return openModal(message, 'confirm');
     }
 
-    window.closeModal = () => { // Keep window.closeModal for inline onclick
+    window.closeModal = () => { // Keep window.closeModal for inline onclick and general use
         const customModalEl = document.getElementById('customModal');
         if (customModalEl) customModalEl.classList.remove('flex');
+        // Re-enable main modal buttons if they were hidden by auth modal
+        document.getElementById('modalButtons').classList.remove('hidden');
     };
 
     // ===== AUTH MODALS (Updated to use new customModal structure) =====
@@ -754,6 +766,9 @@
         `;
         document.getElementById('customModal').classList.add('flex'); // Show modal
 
+        // Hide the default modal buttons (OK, Confirm, Cancel) for the auth form
+        document.getElementById('modalButtons').classList.add('hidden');
+
         // Remove previous listeners to prevent duplicates
         const authForm = document.getElementById('authForm');
         const registerNewBtn = document.getElementById('registerNewBtn');
@@ -775,9 +790,6 @@
         registerNewBtn.addEventListener('click', newRegisterNewBtnHandler);
         authForm._submitHandler = newAuthFormHandler;
         registerNewBtn._clickHandler = newRegisterNewBtnHandler;
-
-        // Hide default modal buttons
-        document.getElementById('modalButtons').classList.add('hidden');
     };
 
     const handleAuth = async (email, password, type) => {
@@ -874,13 +886,16 @@
                         const timeData = getTimeUntilMatch(match.time);
                         let timerHtml = '';
                         
-                        if (timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0) {
-                            timerHtml = `<p class="text-lg font-bold text-red-500">Match Started!</p>`;
+                        // Use targetTimeMillis from backend for more accurate countdown
+                        const targetTimeMillis = match.targetTimeMillis;
+
+                        if (new Date().getTime() >= targetTimeMillis) {
+                            timerHtml = `<p class="text-lg font-bold text-red-500">Registration Closed</p>`;
                         } else {
                             timerHtml = `
                                 <p class="text-sm font-semibold text-gray-600">Starts in:</p>
                                 <p id="timer-${match.id}" class="text-lg font-bold text-green-600">
-                                    ${formatTimeUnit(timeData.hours)}h ${formatTimeUnit(timeData.minutes)}m
+                                    <!-- Initial content, updated by setInterval -->
                                 </p>
                             `;
                         }
@@ -888,7 +903,7 @@
                         const cardHtml = `
                             <div class="card-base p-8 border-l-4 border-blue-300 transform transition duration-300 hover:scale-105">
                                 <h3 class="text-2xl font-bold text-blue-600 mb-2">${match.type}</h3>
-                                <p class="text-gray-700 mb-1"><i class="fas fa-clock mr-2 text-blue-500"></i>Time: <span class="font-semibold">${match.time}</span></p>
+                                <p class="text-gray-700 mb-1"><i class="fas fa-clock mr-2 text-blue-500"></i>Time: <span class="font-semibold">${match.time12hr}</span></p>
                                 <p class="text-gray-700 mb-1"><i class="fas fa-users mr-2 text-purple-500"></i>Players: <span class="font-semibold">${match.min_players} - ${match.max_players}</span></p>
                                 <p class="text-gray-700 mb-1"><i class="fas fa-rupee-sign mr-2 text-yellow-500"></i>Entry: <span class="font-semibold">₹${(match.entry || 0).toFixed(2)}</span></p>
                                 <p class="text-gray-700"><i class="fas fa-trophy mr-2 text-orange-400"></i>Prize: <span class="font-semibold">${match.prize || 'N/A'}</span></p>
@@ -904,11 +919,13 @@
                             </div>
                         `;
                         matchesContainer.insertAdjacentHTML('beforeend', cardHtml);
-                        matchSelect.insertAdjacentHTML('beforeend', `<option value="${match.id}" data-match-type="${match.type}" data-match-time="${match.time}">${match.time} - ${match.type}</option>`);
+                        matchSelect.insertAdjacentHTML('beforeend', `<option value="${match.id}" data-match-type="${match.type}" data-match-time="${match.time}">${match.time12hr} - ${match.type}</option>`);
                         
                         // Start timer if match hasn't started yet
-                        if (!(timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0)) {
-                            startMatchTimer(match.id, match.time);
+                        if (new Date().getTime() < targetTimeMillis) {
+                            // Use the new updateCountdown function for table countdowns
+                            countdownTimers[match.id] = setInterval(() => updateCountdown(match.id, targetTimeMillis), 1000);
+                            updateCountdown(match.id, targetTimeMillis); // Initial call
                         }
                     });
 
@@ -1019,7 +1036,7 @@
                         addTeammateButton.classList.add('hidden');
                     }
                 } else {
-                    openModal('You have reached the maximum number of teammates for this match type.');
+                    openModal('You have reached the maximum number of teammates for this match type.', 'alert');
                 }
             });
         } else {
@@ -1276,27 +1293,22 @@
         const loginPrompt = document.getElementById('loginPrompt');
         const registerButton = document.getElementById('registerButton');
         const walletButton = document.getElementById('walletButton'); // Get wallet button
+        const adminPanelButton = document.getElementById('adminPanelButton'); // Get admin button
 
-        // Always show content after auth check
+
+        // Always hide loading screen and show main content after auth check
         if (loadingScreen) loadingScreen.classList.add('hidden');
         if (mainContent) mainContent.classList.remove('hidden');
         
         currentUser = user;
         if (user) {
-            // ✅ Show logout and registrations buttons
+            // Logged in state
+            if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email;
             if (logoutButton) logoutButton.classList.remove('hidden');
             if (myRegistrationsButton) myRegistrationsButton.classList.remove('hidden');
             if (walletButton) walletButton.classList.remove('hidden'); // Show wallet button when logged in
-        } else {
-            // ❌ Hide if not logged in
-            if (logoutButton) logoutButton.classList.add('hidden');
-            if (myRegistrationsButton) myRegistrationsButton.classList.add('hidden');
-            if (walletButton) walletButton.classList.add('hidden'); // Hide wallet button when logged out
-        }
-        if (user) {
-            if (loggedInEmailSpan) loggedInEmailSpan.textContent = user.email;
-            if (logoutButton) logoutButton.classList.remove('hidden');
-            
+            if (authButton) authButton.classList.add('hidden'); // Hide login/register button
+
             // Update the registration form with logged-in user info
             if (loggedInUserInfo) loggedInUserInfo.classList.remove('hidden');
             if (regEmail) regEmail.textContent = user.email;
@@ -1318,43 +1330,49 @@
             }
             // Admin panel button visibility (client-side check for UI only)
             if (user.uid === 'e2vzNJEFhoVk0l1v4MtCp6OHHn03') { // Replace with your actual ADMIN_UID
-                document.getElementById('adminPanelButton').classList.remove('hidden');
+                if (adminPanelButton) adminPanelButton.classList.remove('hidden');
             } else {
-                document.getElementById('adminPanelButton').classList.add('hidden');
+                if (adminPanelButton) adminPanelButton.classList.add('hidden');
             }
             
         } else {
+            // Logged out state
             if (loggedInEmailSpan) loggedInEmailSpan.textContent = 'Guest';
             if (logoutButton) logoutButton.classList.add('hidden');
-            
+            if (myRegistrationsButton) myRegistrationsButton.classList.add('hidden');
+            if (walletButton) walletButton.classList.add('hidden'); // Hide wallet button when logged out
+            if (adminPanelButton) adminPanelButton.classList.add('hidden'); // Hide admin button
+            if (authButton) authButton.classList.remove('hidden'); // Show login/register button
+
             // Update registration form to prompt login
             if (loggedInUserInfo) loggedInUserInfo.classList.add('hidden');
             if (loginPrompt) loginPrompt.classList.remove('hidden');
             if (registerButton) registerButton.disabled = true;
-            if (authButton) authButton.onclick = showLoginRegisterModal; // Ensure this is correctly assigned
-            document.getElementById('adminPanelButton').classList.add('hidden'); // Hide admin button
+            // Ensure authButton click handler is set for logged out state
+            if (authButton) authButton.onclick = showLoginRegisterModal; 
         }
     });
 
     // ===== EVENT LISTENERS AND INITIAL LOAD =====
     document.addEventListener('DOMContentLoaded', () => {
-        // Auth form listeners (now handled within showLoginRegisterModal for dynamic content)
-        document.getElementById('authButton').addEventListener('click', showLoginRegisterModal);
+        // Auth form listeners are now handled directly within showLoginRegisterModal for dynamic content
+        // No need to attach them here if showLoginRegisterModal creates and attaches them.
 
-        // Navigation buttons
-        document.getElementById('myRegistrationsButton').addEventListener('click', () => {
+        // Navigation buttons - use optional chaining for robustness
+        document.getElementById('authButton')?.addEventListener('click', showLoginRegisterModal);
+        document.getElementById('myRegistrationsButton')?.addEventListener('click', () => {
             window.location.href = '/registered.html';
         });
-        document.getElementById('adminPanelButton').addEventListener('click', () => {
+        document.getElementById('adminPanelButton')?.addEventListener('click', () => {
             window.location.href = '/admin_panel.html';
         });
-        document.getElementById('walletButton').addEventListener('click', () => {
+        document.getElementById('walletButton')?.addEventListener('click', () => {
             window.location.href = '/wallet.html';
         });
 
         // Registration form listener
-        document.getElementById('registrationForm').addEventListener('submit', registerForMatch);
-        document.getElementById('matchSelect').addEventListener('change', updateTeammateInputs);
+        document.getElementById('registrationForm')?.addEventListener('submit', registerForMatch);
+        document.getElementById('matchSelect')?.addEventListener('change', updateTeammateInputs);
 
         // Initial fetches for dynamic content
         fetchAndDisplayMatchSlots(); // This also populates matchSelect and `loadedMatchSlots`
