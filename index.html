@@ -669,7 +669,6 @@
             clearInterval(countdownTimers[matchId]);
             delete countdownTimers[matchId];
         }
-        // No longer need to clear activeTimers as it's removed
     }
     
     // ===== MODAL FUNCTIONS (Updated to handle dynamic content and multiple buttons) =====
@@ -864,6 +863,29 @@
         }
     }
 
+    // Function to add teammate input fields
+    window.addTeammateInput = (index) => {
+        const teammatesList = document.getElementById('teammatesList');
+        const div = document.createElement('div');
+        div.className = 'teammate-entry flex items-center space-x-4 mb-4';
+        div.innerHTML = `
+            <input type="text" id="memberIGN${index}" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate ${index} IGN" required>
+            <input type="text" id="memberFFID${index}" class="flex-1 shadow-sm appearance-none border rounded-lg py-2 px-3" placeholder="Teammate ${index} FFID" required>
+            <button type="button" class="remove-teammate-btn modern-btn !bg-red-500 hover:!bg-red-500 w-10 h-10 flex items-center justify-center"><i class="fas fa-times"></i></button>
+        `;
+        teammatesList.appendChild(div);
+
+        const removeBtn = div.querySelector('.remove-teammate-btn');
+        removeBtn.addEventListener('click', () => {
+            div.remove();
+            // Show add button again since we removed a teammate, if not at max
+            const currentTeammates = teammatesList.children.length;
+            if (currentTeammates < currentMaxTeammates) {
+                document.getElementById('addTeammateButton').classList.remove('hidden');
+            }
+        });
+    };
+
     // Fetch and display active match slots
     const fetchAndDisplayMatchSlots = async () => {
         const matchesContainer = document.getElementById('matchesContainer');
@@ -1004,20 +1026,25 @@
             
             if (matchType.includes('solo')) {
                 teammatesSection.classList.add('hidden');
+                currentMaxTeammates = 0; // Solo needs 0 additional teammates
             } else if (matchType.includes('duo')) {
-                currentMaxTeammates = 1;
+                currentMaxTeammates = 1; // Duo needs 1 additional teammate
                 teammatesSection.classList.remove('hidden');
                 // Add one initial teammate
-                addTeammateInput(1);
+                window.addTeammateInput(1);
                 // Hide add button for duo since only one teammate is needed
                 addTeammateButton.classList.add('hidden');
             } else if (matchType.includes('squad') || matchType.includes('team')) {
-                currentMaxTeammates = 3;
+                currentMaxTeammates = 3; // Squad/Team needs 3 additional teammates
                 teammatesSection.classList.remove('hidden');
                 // Add one initial teammate
-                addTeammateInput(1);
+                window.addTeammateInput(1);
                 // Show add button for squad since we can add more teammates
-                addTeammateButton.classList.remove('hidden');
+                if (currentMaxTeammates > 1) { // Only show if more than 1 teammate is allowed
+                    addTeammateButton.classList.remove('hidden');
+                } else {
+                    addTeammateButton.classList.add('hidden');
+                }
             }
 
             // Configure add teammate button
@@ -1025,7 +1052,7 @@
                 const currentTeammates = teammatesList.children.length;
                 if (currentTeammates < currentMaxTeammates) {
                     // Add teammate with remove button
-                    addTeammateInput(currentTeammates + 1);
+                    window.addTeammateInput(currentTeammates + 1);
                     
                     // Hide button if max reached
                     if (teammatesList.children.length >= currentMaxTeammates) {
@@ -1085,11 +1112,19 @@
             await window.openModal('Selected match slot not found. Please try again.', 'error');
             return;
         }
-        const maxPlayers = selectedMatchSlot.max_players || 1;
-        const requiredTeammates = maxPlayers - 1; // Leader is 1 player, rest are teammates
+        
+        // Calculate expected teammates based on selected match's min_players/max_players
+        let expectedTeammates = 0;
+        const selectedMatchType = selectedMatchSlot.type.toLowerCase();
+        if (selectedMatchType.includes('duo')) {
+            expectedTeammates = 1; // Leader + 1 teammate
+        } else if (selectedMatchType.includes('squad') || selectedMatchType.includes('team')) {
+            expectedTeammates = 3; // Leader + 3 teammates
+        }
+        // For solo, expectedTeammates remains 0
 
-        if (teammates.length !== requiredTeammates) {
-            await window.openModal(`This match requires exactly ${requiredTeammates} teammate(s). You have provided ${teammates.length}.`, 'error');
+        if (teammates.length !== expectedTeammates) {
+            await window.openModal(`This match type requires exactly ${expectedTeammates} teammate(s) in addition to yourself. You have provided ${teammates.length}.`, 'error');
             return;
         }
 
