@@ -362,8 +362,13 @@
         <source src="bg2.mp4" type="video/mp4">
     </video>
     
-    <!-- REMOVED the overlay div -->
-   
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[1001] hidden">
+        <div class="flex flex-col items-center">
+            <div class="loading-animation"></div>
+            <p class="mt-4 text-xl font-semibold text-white">Processing...</p>
+        </div>
+    </div>
 
     <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-100 z-50">
         <div class="flex flex-col items-center">
@@ -577,11 +582,52 @@
 
     const API_BASE_URL = "https://tha-tournaments.onrender.com"; // Explicitly set backend URL
     
-    // ===== TIMER FUNCTIONS =====
-    // Global array to store timer references
-    let activeTimers = [];
-    
-    // Function to calculate time until match starts
+    // New global object to store countdown intervals for match cards
+    const countdownTimers = {};
+    console.log('countdownTimers initialized:', countdownTimers); // Debugging line
+
+    // Function to update countdown display for a specific match
+    function updateCountdown(matchId, targetTimeMillis) {
+        const now = new Date().getTime();
+        const distance = targetTimeMillis - now;
+        const timerElement = document.getElementById(`timer-${matchId}`);
+
+        if (!timerElement) {
+            // If element is no longer in DOM, clear its interval
+            if (countdownTimers[matchId]) {
+                clearInterval(countdownTimers[matchId]);
+                delete countdownTimers[matchId];
+            }
+            return;
+        }
+
+        if (distance < 0) {
+            timerElement.innerHTML = `<span class="text-red-500">Registration Closed</span>`;
+            clearInterval(countdownTimers[matchId]);
+            delete countdownTimers[matchId];
+            return;
+        }
+
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (hours === 0 && minutes < 30) {
+            timerElement.innerHTML = `
+                <span class="text-orange-500 font-bold">
+                    ${formatTimeUnit(minutes)}m ${formatTimeUnit(seconds)}s
+                </span>
+            `;
+        } else {
+            timerElement.innerHTML = `
+                <span class="text-green-600">
+                    ${formatTimeUnit(hours)}h ${formatTimeUnit(minutes)}m
+                </span>
+            `;
+        }
+    }
+
+    // Function to calculate time until match starts (kept for `isMatchOpenForRegistration` logic)
     function getTimeUntilMatch(matchTimeStr) {
         const now = new Date();
         const [hours, minutes] = matchTimeStr.split(':').map(Number);
@@ -616,50 +662,14 @@
         return value.toString().padStart(2, '0');
     }
     
-    // Function to start timer for a match card
-    function startMatchTimer(matchId, matchTime) {
-        const timerElement = document.getElementById(`timer-${matchId}`);
-        if (!timerElement) return;
-        
-        const timerInterval = setInterval(() => {
-            const timeData = getTimeUntilMatch(matchTime);
-            
-            // Check if match has started
-            if (timeData.hours <= 0 && timeData.minutes <= 0 && timeData.seconds <= 0) {
-                timerElement.innerHTML = `<span class="text-red-500">Match Started!</span>`;
-                clearInterval(timerInterval);
-                return;
-            }
-            
-            // Check if match is within 30 minutes
-            if (timeData.hours === 0 && timeData.minutes < 30) {
-                timerElement.innerHTML = `
-                    <span class="text-orange-500 font-bold">
-                        ${formatTimeUnit(timeData.minutes)}m ${formatTimeUnit(timeData.seconds)}s
-                    </span>
-                `;
-            } 
-            // More than 30 minutes remaining
-            else {
-                timerElement.innerHTML = `
-                    <span class="text-green-600">
-                        ${formatTimeUnit(timeData.hours)}h ${formatTimeUnit(timeData.minutes)}m
-                    </span>
-                `;
-            }
-        }, 1000);
-        
-        // Store timer reference
-        activeTimers.push({
-            id: matchId,
-            interval: timerInterval
-        });
-    }
-    
     // Function to clear all timers when page unloads
     function clearAllTimers() {
-        activeTimers.forEach(timer => clearInterval(timer.interval));
-        activeTimers = [];
+        // Clear countdownTimers
+        for (const matchId in countdownTimers) {
+            clearInterval(countdownTimers[matchId]);
+            delete countdownTimers[matchId];
+        }
+        // No longer need to clear activeTimers as it's removed
     }
     
     // ===== MODAL FUNCTIONS (Updated to handle dynamic content and multiple buttons) =====
@@ -889,7 +899,6 @@
                     matchSelect.innerHTML = '<option value="">-- Select Match Type & Time --</option>'; // Default option
                     activeUpcomingMatches.forEach(match => {
                         // Calculate match status
-                        const timeData = getTimeUntilMatch(match.time);
                         let timerHtml = '';
                         
                         // Use targetTimeMillis from backend for more accurate countdown
@@ -1093,7 +1102,12 @@
             return; // User cancelled
         }
 
-        document.getElementById('loadingOverlay').classList.remove('hidden'); // Show loading
+        // Check if loadingOverlay exists before trying to access classList
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden'); // Show loading
+        }
+
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/register-for-match`, {
@@ -1139,7 +1153,10 @@
             console.error('Registration error:', error);
             await window.openModal('An error occurred during registration. Please try again later.', 'error');
         } finally {
-            document.getElementById('loadingOverlay').classList.add('hidden'); // Hide loading
+            // Check if loadingOverlay exists before trying to access classList
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden'); // Hide loading
+            }
         }
     };
 
