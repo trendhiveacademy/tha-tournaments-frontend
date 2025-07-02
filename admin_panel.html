@@ -535,7 +535,16 @@
                     </div>
                     <div>
                         <label for="slotType" class="block text-gray-700 text-base font-bold mb-2">Match Type:</label>
-                        <input type="text" id="slotType" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4" placeholder="e.g., BR Solo, CS Team Match" required>
+                        <select id="slotType" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-300" required onchange="updateMinMaxPlayers()">
+                            <option value="">-- Select Match Type --</option>
+                            <option value="BR Solo">BR Solo</option>
+                            <option value="BR Duo">BR Duo</option>
+                            <option value="BR Squad">BR Squad</option>
+                            <option value="CS Solo">CS Solo</option>
+                            <option value="CS Duo">CS Duo</option>
+                            <option value="CS Squad">CS Squad</option>
+                            <option value="Custom">Custom (Set manually)</option>
+                        </select>
                     </div>
                     <div>
                         <label for="slotTime" class="block text-gray-700 text-base font-bold mb-2">Match Time (HH:MM):</label>
@@ -897,7 +906,7 @@
             try {
                 const now = new Date();
                 const [hours, minutes] = matchTimeStr.split(':').map(Number);
-                const matchDateTime = new Date(now.getFullYear(), now.getMonth(), now.day, hours, minutes, 0);
+                const matchDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
                 const completionTime = new Date(matchDateTime.getTime() + 60 * 60 * 1000); 
                 return now >= completionTime;
             } catch (e) {
@@ -1107,6 +1116,8 @@
             document.getElementById('slotPrize').value = prize;
             document.getElementById('slotActive').checked = active;
             document.getElementById('slotId').readOnly = true; // Prevent ID change when editing
+            // Trigger updateMinMaxPlayers to set correct values if type is changed
+            updateMinMaxPlayers(); 
         };
 
         window.deleteMatchSlot = async (id) => {
@@ -1123,6 +1134,50 @@
             document.getElementById('matchSlotForm').reset();
             document.getElementById('slotId').readOnly = false;
             document.getElementById('matchSlotFormId').value = ''; // Clear hidden ID
+            updateMinMaxPlayers(); // Reset min/max players based on default/empty selection
+        };
+
+        // NEW FUNCTION: Automatically set min/max players based on selected match type
+        window.updateMinMaxPlayers = () => {
+            const slotType = document.getElementById('slotType').value;
+            const minPlayersInput = document.getElementById('minPlayers');
+            const maxPlayersInput = document.getElementById('maxPlayers');
+
+            switch (slotType) {
+                case 'BR Solo':
+                case 'CS Solo':
+                    minPlayersInput.value = 1;
+                    maxPlayersInput.value = 1;
+                    minPlayersInput.readOnly = true;
+                    maxPlayersInput.readOnly = true;
+                    break;
+                case 'BR Duo':
+                case 'CS Duo':
+                    minPlayersInput.value = 2;
+                    maxPlayersInput.value = 2;
+                    minPlayersInput.readOnly = true;
+                    maxPlayersInput.readOnly = true;
+                    break;
+                case 'BR Squad':
+                case 'CS Squad':
+                    minPlayersInput.value = 4;
+                    maxPlayersInput.value = 4;
+                    minPlayersInput.readOnly = true;
+                    maxPlayersInput.readOnly = true;
+                    break;
+                case 'Custom':
+                    minPlayersInput.value = 0; // Or a default like 1
+                    maxPlayersInput.value = 0; // Or a default like 1
+                    minPlayersInput.readOnly = false;
+                    maxPlayersInput.readOnly = false;
+                    break;
+                default: // For "-- Select Match Type --" or unrecognized
+                    minPlayersInput.value = 0;
+                    maxPlayersInput.value = 0;
+                    minPlayersInput.readOnly = false; // Allow manual input if nothing selected
+                    maxPlayersInput.readOnly = false;
+                    break;
+            }
         };
 
 
@@ -1529,6 +1584,9 @@
             document.getElementById('matchSlotForm')?.addEventListener('submit', window.saveMatchSlot);
             document.getElementById('scheduleItemForm')?.addEventListener('submit', window.saveScheduleItem);
             document.getElementById('prizeItemForm')?.addEventListener('submit', window.savePrizeItem);
+
+            // Initial call to set min/max players based on default dropdown selection
+            updateMinMaxPlayers();
         });
     </script>
 </body>
