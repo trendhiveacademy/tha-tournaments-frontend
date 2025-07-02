@@ -339,7 +339,7 @@
         }
         .modern-btn.\!bg-purple-600 {
             background: linear-gradient(45deg, #8B5CF6, #6D28D9); /* Purple */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4_px 10px rgba(0,0,0,0.15);
         }
         .modern-btn.\!bg-purple-600:hover {
             box-shadow: 0 8px 18px rgba(0,0,0,0.25);
@@ -763,9 +763,15 @@
             </div>
             <!-- End Update Match Room Details Section -->
 
-            <button onclick="fetchAllRegistrationsForAdmin()" class="mb-6 modern-btn !bg-purple-600 hover:!bg-purple-600">
-                Refresh Registrations <i class="fas fa-sync-alt ml-2"></i>
-            </button>
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mb-6 w-full sm:w-auto items-center sm:items-stretch">
+                <button onclick="fetchAllRegistrationsForAdmin()" class="modern-btn !bg-purple-600 hover:!bg-purple-600 w-full sm:w-auto">
+                    Refresh Registrations <i class="fas fa-sync-alt ml-2"></i>
+                </button>
+                <button onclick="clearAllRegistrations()" class="modern-btn !bg-red-500 hover:!bg-red-500 w-full sm:w-auto">
+                    Clear All Registrations <i class="fas fa-eraser ml-2"></i>
+                </button>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="min-w-full rounded-lg shadow-sm">
                     <thead>
@@ -1381,43 +1387,43 @@
         }
 
         window.updateMatchDetails = async (registrationId) => { 
-    const roomCode = document.getElementById(`roomCode_${registrationId}`).value;
-    const roomPassword = document.getElementById(`roomPassword_${registrationId}`).value;
+            const roomCode = document.getElementById(`roomCode_${registrationId}`).value;
+            const roomPassword = document.getElementById(`roomPassword_${registrationId}`).value;
 
-    // CORRECTED ENDPOINT
-    const result = await makeAdminApiRequest('/api/admin/update_single_registration_room_details', 'POST', {
-        registrationId: registrationId,
-        roomCode: roomCode,
-        roomPassword: roomPassword
-    });
-    await openModal(result.message);
-    if (result.success) {
-        fetchAllRegistrationsForAdmin(); 
-    }
-}
+            // CORRECTED ENDPOINT
+            const result = await makeAdminApiRequest('/api/admin/update_single_registration_room_details', 'POST', {
+                registrationId: registrationId,
+                roomCode: roomCode,
+                roomPassword: roomPassword
+            });
+            await openModal(result.message);
+            if (result.success) {
+                fetchAllRegistrationsForAdmin(); 
+            }
+        }
 
         window.updateBatchMatchDetails = async (event) => {
-    event.preventDefault();
-    const matchToUpdateSelect = document.getElementById('matchToUpdate');
-    const batchRoomCodeInput = document.getElementById('batchRoomCode');
-    const batchRoomPasswordInput = document.getElementById('batchRoomPassword');
+            event.preventDefault();
+            const matchToUpdateSelect = document.getElementById('matchToUpdate');
+            const batchRoomCodeInput = document.getElementById('batchRoomCode');
+            const batchRoomPasswordInput = document.getElementById('batchRoomPassword');
 
-    const matchId = matchToUpdateSelect.value;
-    const roomCode = batchRoomCodeInput.value;
-    const roomPassword = batchRoomPasswordInput.value;
+            const matchId = matchToUpdateSelect.value;
+            const roomCode = batchRoomCodeInput.value;
+            const roomPassword = batchRoomPasswordInput.value;
 
-    // ADDED MISSING ADMIN UID
-    const result = await makeAdminApiRequest('/api/admin/update_match_room_details', 'POST', {
-        matchId: matchId,
-        roomCode: roomCode,
-        roomPassword: roomPassword
-    });
-    await openModal(result.message);
-    if (result.success) {
-        document.getElementById('updateMatchRoomDetailsForm').reset();
-        fetchAllRegistrationsForAdmin(); 
-    }
-}
+            // ADDED MISSING ADMIN UID
+            const result = await makeAdminApiRequest('/api/admin/update_match_room_details', 'POST', {
+                matchId: matchId,
+                roomCode: roomCode,
+                roomPassword: roomPassword
+            });
+            await openModal(result.message);
+            if (result.success) {
+                document.getElementById('updateMatchRoomDetailsForm').reset();
+                fetchAllRegistrationsForAdmin(); 
+            }
+        }
 
         window.adminCancelRegistration = async (registrationId, userId, currentStatus, isCompleted) => { 
             if (currentStatus === 'canceled' || isCompleted) { 
@@ -1444,6 +1450,20 @@
                 fetchAllRegistrationsForAdmin(); // Refresh the table
             }
         }
+
+        // NEW FUNCTION: Clear All Registrations
+        window.clearAllRegistrations = async () => {
+            const confirmed = await openModal('Are you absolutely sure you want to CLEAR ALL TOURNAMENT REGISTRATIONS? This action is irreversible and will delete all registration data.', 'confirm_cancel');
+            if (!confirmed) {
+                return;
+            }
+
+            const result = await makeAdminApiRequest('/api/admin/clear_all_registrations', 'POST', {});
+            await openModal(result.message);
+            if (result.success) {
+                fetchAllRegistrationsForAdmin(); // Refresh the table to show it's empty
+            }
+        };
 
 
         // --- Auth State Listener ---
